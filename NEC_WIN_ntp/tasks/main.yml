@@ -1,0 +1,11 @@
+---
+#
+# tasks file for ntp
+#
+
+  - import_tasks: pre_check.yml
+
+  - include_tasks: modify.yml
+
+  - import_tasks: post_check.yml
+

@@ -1,0 +1,11 @@
+---
+- name: check VAR_NEC_WIN_DriveLetter_info none
+  fail:
+    msg: "The variable VAR_NEC_WIN_DriveLetter_info cannot be NULL."
+  when: "(VAR_NEC_WIN_DriveLetter_info is none) or (VAR_NEC_WIN_DriveLetter_info == '')"
+
+- name: include tasks
+  include_tasks: set.yml
+  with_items: "{{ VAR_NEC_WIN_DriveLetter_info }}"
+  loop_control:
+    loop_var: outer_item

@@ -1,0 +1,139 @@
+---
+    # not check `COMPLIANCE020201` by ansible-lint
+  - name: get OS's temp directory
+    win_shell: "$env:TEMP"
+    register: winTempDir
+
+    #check path is exsit or not
+  - name: copy ps1 file
+    win_copy:
+        src: checkdir.ps1
+        dest: "{{ winTempDir.stdout_lines[0] }}\\"
+        force: true
+
+  - name: check whether path is legal or not
+    win_shell: "{{ winTempDir.stdout_lines[0] }}\\checkdir.ps1 {{ VAR_NEC_WIN_directory }}"
+    register: pw_result1
+    failed_when: pw_result1.stdout_lines[-1].upper() == "FALSE"
+
+  - name: delete ps1 file
+    win_file:
+        path: '{{ winTempDir.stdout_lines[0] }}\\checkdir.ps1'
+        state: absent
+
+  - name: check VAR_NEC_WIN_owner's defination
+    block:
+        #check owner
+      - name: check whether user is exsit or not
+        win_shell: "net user {{ VAR_NEC_WIN_owner.user }}"
+        register: cmd_result1
+        when:
+          - VAR_NEC_WIN_owner.user is defined
+          - VAR_NEC_WIN_owner.user is not none
+          - VAR_NEC_WIN_owner.user != ""
+
+        #check recurse
+      - name: check whether recurse is legal or not
+        fail:
+            msg: recurse's value is unavailable
+        when:
+          - VAR_NEC_WIN_owner.recurse is defined
+          - VAR_NEC_WIN_owner.recurse is not none
+          - VAR_NEC_WIN_owner.recurse != ""
+          - VAR_NEC_WIN_owner.recurse != False
+          - VAR_NEC_WIN_owner.recurse != True
+    when:
+      - VAR_NEC_WIN_owner is defined
+      - VAR_NEC_WIN_owner is not none
+      - VAR_NEC_WIN_owner != ""
+
+  - name: check VAR_NEC_WIN_acl's defination
+    block:
+      - name: check acl's necessary items when acl is defined
+        assert:
+            that:
+              - (item.user is defined) and (item.user is not none) and (item.user != "")
+              - (item.rights is defined) and (item.rights is not none) and (item.rights != "")
+              - (item.type is defined) and (item.type is not none) and (item.type != "")
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+
+        #check user
+      - name: copy bat file
+        win_copy:
+            src: execCMD.bat
+            dest: "{{ winTempDir.stdout_lines[0] }}\\"
+            force: true
+
+      - name: check whether user or group is exsit or not
+        win_shell: "{{ winTempDir.stdout_lines[0] }}\\execCMD.bat {{item.user}}"
+        register: cmd_result2
+        failed_when: cmd_result2.stdout_lines[-1] != "0"
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+
+      - name: delete bat file
+        win_file:
+            path: '{{ winTempDir.stdout_lines[0] }}\\execCMD.bat'
+            state: absent
+
+      - name: get available access rights
+        set_fact:
+          AVAILABLE_RIGHT_LIST: ["READDATA","WRITEDATA","CREATEFILES","CREATEDIRECTORIES","APPENDDATA","READEXTENDEDATTRIBUTES","WRITEEXTENDEDATTRIBUTES","TRAVERSE","EXECUTEFILE","DELETESUBDIRECTORIESANDFILES","READATTRIBUTES","WRITEATTRIBUTES","WRITE","DELETE","READPERMISSIONS","READ","READANDEXECUTE","MODIFY","CHANGEPERMISSIONS","TAKEOWNERSHIP","SYNCHRONIZE","FULLCONTROL"]
+
+      - name: check whether rights is legal or not
+        fail:
+            msg: rights's value is unavailable
+        when: not item.1.strip().upper() in AVAILABLE_RIGHT_LIST
+        with_subelements:
+          - "{{ VAR_NEC_WIN_acl }}"
+          - rights
+
+      - name: check whether type's value is legal or not
+        fail:
+            msg: type's value is unavailable
+        when: item.type.upper() != "ALLOW" and  item.type.upper() != "DENY"
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+
+      - name: check whether state's value is legal or not
+        fail:
+            msg: state's value is unavailable
+        when:
+          - item.state is defined
+          - item.state is not none
+          - item.state != ""
+          - item.state.upper() != "ABSENT"
+          - item.state.upper() != "PRESENT"
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+
+      - name: check whether inherit's value is legal or not
+        fail:
+            msg: inherit's value is unavailable
+        when:
+          - item.inherit is defined
+          - item.inherit is not none
+          - item.inherit != ""
+          - item.inherit.upper() != "CONTAINERINHERIT"
+          - item.inherit.upper() != "NONE"
+          - item.inherit.upper() != "OBJECTINHERIT"
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+
+      - name: check whether propagation's value is legal or not
+        fail:
+            msg: propagation's value is unavailable
+        when:
+          - item.propagation is defined
+          - item.propagation is not none
+          - item.propagation != ""
+          - item.propagation.upper() != "INHERITONLY"
+          - item.propagation.upper() != "NONE"
+          - item.propagation.upper() != "NOPROPAGATEINHERIT"
+        with_items:
+           - "{{ VAR_NEC_WIN_acl }}"
+    when:
+      - VAR_NEC_WIN_acl is defined
+      - VAR_NEC_WIN_acl is not none
+      - VAR_NEC_WIN_acl != ""

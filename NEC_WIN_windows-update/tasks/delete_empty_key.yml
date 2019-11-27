@@ -1,0 +1,26 @@
+---
+  - name: get exist entrys under pointed key AU
+    win_shell: "reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\\ /s"
+    register: result_AU
+    failed_when: false
+  - name: delete entrys under pointed key AU
+    win_regedit:
+        path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\
+        state: absent
+        delete_key: yes
+    when:
+      - result_AU.rc == 0
+      - (result_AU.stdout == "" or result_AU.stdout == "\r\n")
+
+  - name: get exist entrys under pointed key WU
+    win_shell: "reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\ /s"
+    register: result_WU
+    failed_when: false
+  - name: delete entrys under pointed key WU
+    win_regedit:
+        path: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\
+        state: absent
+        delete_key: yes
+    when:
+      - result_WU.rc == 0
+      - (result_WU.stdout == "" or result_WU.stdout == "\r\n")

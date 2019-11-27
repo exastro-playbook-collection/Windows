@@ -1,0 +1,86 @@
+---
+    # not check `COMPLIANCE020201` by ansible-lint
+  - name: set VAR_NEC_WIN_update_AU's default value
+    set_fact:
+        update_AU_default:
+            status: notConfigured
+            automaticMaintenanceEnabled: disabled
+            AUOptions: 3
+            scheduledInstallDay: 0
+            scheduledInstallTime: 3
+            allowMUUpdateService: disabled
+  - name: target key of register
+    set_fact:
+        location: 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\'
+    #before setting,old entry have to be delete
+  - name: old entry list
+    set_fact:
+        OLD_AU_OPTION_LIST: ["AllowMUUpdateService","AUOptions","AutomaticMaintenanceEnabled","NoAutoUpdate","ScheduledInstallDay","ScheduledInstallTime"]
+
+  - name: delete old entry
+    win_regedit:
+        path: "{{location}}"
+        name: "{{item}}"
+        state: absent
+    with_items: "{{OLD_AU_OPTION_LIST}}"
+
+  - name: get status
+    set_fact:
+        AU_status: "{{VAR_NEC_WIN_update_AU.status | default(update_AU_default.status)}}"
+
+  - name: format input variable
+    set_fact:
+        update_AU_Temp:
+            automaticMaintenanceEnabled: "{{VAR_NEC_WIN_update_AU.automaticMaintenanceEnabled | default(update_AU_default.automaticMaintenanceEnabled)}}"
+            AUOptions: "{{VAR_NEC_WIN_update_AU.AUOptions | default(update_AU_default.AUOptions)}}"
+            scheduledInstallDay: "{{VAR_NEC_WIN_update_AU.scheduledInstallDay | default(update_AU_default.scheduledInstallDay)}}"
+            scheduledInstallTime: "{{VAR_NEC_WIN_update_AU.scheduledInstallTime | default(update_AU_default.scheduledInstallTime)}}"
+            allowMUUpdateService: "{{VAR_NEC_WIN_update_AU.allowMUUpdateService | default(update_AU_default.allowMUUpdateService)}}"
+
+  - name: enable auto update when status is ENABLED
+    block:
+      - name: transform automaticMaintenanceEnabled
+        set_fact:
+            automaticMaintenanceEnabledNum: 1
+        when: update_AU_Temp.automaticMaintenanceEnabled.strip().upper() == "ENABLED"
+      - name: enable automaticMaintenance
+        win_regedit:
+            path: "{{location}}"
+            name: automaticMaintenanceEnabled
+            data: "{{automaticMaintenanceEnabledNum}}"
+            type: dword
+        when: automaticMaintenanceEnabledNum is defined
+      - name: transform allowMUUpdateService
+        set_fact:
+            allowMUUpdateServiceNum: 1
+        when: update_AU_Temp.allowMUUpdateService.strip().upper() == "ENABLED"
+      - name: enable allowMUUpdateService
+        win_regedit:
+            path: "{{location}}"
+            name: allowMUUpdateService
+            data: "{{allowMUUpdateServiceNum}}"
+            type: dword
+        when: allowMUUpdateServiceNum is defined
+      - name: set WIN_update_AU
+        set_fact:
+            WIN_update_AU:
+                AUOptions: "{{update_AU_Temp.AUOptions}}"
+                NoAutoUpdate: 0
+                scheduledInstallDay: "{{update_AU_Temp.scheduledInstallDay}}"
+                scheduledInstallTime: "{{update_AU_Temp.scheduledInstallTime}}"
+      - name: enable auto update
+        win_regedit:
+            path: "{{location}}"
+            name: "{{item.key}}"
+            data: "{{item.value}}"
+            type: dword
+        with_dict: "{{WIN_update_AU}}"
+    when: AU_status.strip().upper() == "ENABLED"
+
+  - name: enable auto update when status is DISABLED
+    win_regedit:
+        path: "{{location}}"
+        name: NoAutoUpdate
+        data: 1
+        type: dword
+    when: AU_status.strip().upper() == "DISABLED"

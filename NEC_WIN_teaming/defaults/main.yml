@@ -1,0 +1,15 @@
+---
+#
+# defaults file for teaming
+#
+
+# VAR_NEC_WIN_teaming:                  #チーミング(LBFO)
+  # - name: 'team1'                     #チーム名
+    # mode: 'SwitchIndependent'         #チーミングモード
+    # lb_argorithm: 'TransportPorts'    #負荷分散アルゴリズム
+    # members:                          #所属する物理NIC
+      # - name: 'Ethernet1'               #インターフェース名
+        # mode: 'Standby'                 #Actice/Standby
+    # interfaces:                       #所属する論理NIC
+      # - name: 'teamnic2'                #インターフェース名
+        # vlan_id: 10                     #VLAN ID

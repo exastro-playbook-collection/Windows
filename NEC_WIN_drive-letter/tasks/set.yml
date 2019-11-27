@@ -1,0 +1,48 @@
+---
+- name: check originalName defined and none
+  fail:
+    msg: "The variable originalName should be defined and cannot be NULL."
+  when: "(outer_item.originalName is undefined) or (outer_item.originalName is none) or (outer_item.originalName == '')"
+
+- name: check assignName defined and none
+  fail:
+    msg: "The variable assignName should be defined and cannot be NULL."
+  when: "(outer_item.assignName is undefined) or (outer_item.assignName is none) or (outer_item.assignName == '')"
+
+- name: get all volume
+  win_shell: "Get-Volume | Format-List DriveLetter"
+  register: volume_name
+
+- name: check originalName valid
+  fail:
+    msg: "The volume '{{ outer_item.originalName }}' you selected is not valid or does not exist."
+  when: "('DriveLetter : ' + outer_item.originalName.upper()) not in volume_name.stdout_lines"
+
+- name: set list
+  set_fact:
+    nameList: [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z]
+
+- name: check assignName type and rang
+  fail:
+    msg: "The value of the variable assignName ranges from a to z."
+  when: (outer_item.assignName is not string) or (outer_item.assignName.lower() not in nameList)
+
+- name: check assignName vaild
+  fail:
+    msg: "The drive letter '{{ outer_item.assignName }}' has been used."
+  when: "('DriveLetter : ' + outer_item.assignName.upper()) in volume_name.stdout_lines"
+
+- name: get env:windir
+  win_shell: "$env:TEMP"
+  register: windir
+
+- name: set template
+  template: src=assignDrive.j2 dest={{ windir.stdout_lines[0] }}\\assignDrive_tmp.txt
+
+- name: drive letter set
+  win_command: "diskpart /s {{ windir.stdout_lines[0] }}\\assignDrive_tmp.txt"
+
+- name: delete remote files
+  win_file:
+    path: "{{ windir.stdout_lines[0] }}\\assignDrive_tmp.txt"
+    state: absent

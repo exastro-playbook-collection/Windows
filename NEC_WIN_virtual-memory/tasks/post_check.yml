@@ -1,0 +1,10 @@
+---
+#post_check
+
+  - name: post check registry value
+    raw: (Get-ItemProperty '{{ location }}').PagingFiles
+    register: post_reg
+    changed_when: false
+    when: pre_reg_val | changed
+    failed_when: post_reg.stdout != '{{ data }}\r\n'
+

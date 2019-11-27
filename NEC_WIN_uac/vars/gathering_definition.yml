@@ -1,0 +1,7 @@
+---
+registry:
+  - HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+command:
+  - reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD
+  - reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v PromptOnSecureDesktop /t REG_DWORD
+  - reg query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD

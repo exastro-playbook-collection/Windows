@@ -1,0 +1,7 @@
+---
+registry:
+  - HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters
+command:
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters" /v DisabledComponents /t REG_DWORD
+  - Get-NetAdapter | Format-List -Property Name
+  - Get-NetAdapterBinding | Format-Table -Property Name,ComponentID,Enabled

@@ -1,0 +1,11 @@
+---
+#reboot windows handlers
+
+  - name: Run reboot command
+    win_reboot:
+
+  - name: Wait for connection down
+    wait_for_connection:
+
+  - name: Wait for connection up
+    wait_for_connection:

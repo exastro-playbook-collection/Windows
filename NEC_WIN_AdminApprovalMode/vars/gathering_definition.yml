@@ -1,0 +1,5 @@
+---
+registry:
+  - HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+command:
+  - Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA

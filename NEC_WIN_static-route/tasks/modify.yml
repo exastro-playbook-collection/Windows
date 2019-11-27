@@ -1,0 +1,164 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#modify
+
+  - name: Find-NetRoute for route dest
+    raw: Find-NetRoute -RemoteIPAddress "{{item.item.gateway }}" | select -first 1  -expandproperty interfaceindex
+    with_items: "{{ ret_static_route.results }}"
+    register: ret_alias
+    when:
+      - item.changed
+      - item.item.interface is undefined
+
+  - name: Find-NetRoute with metric
+    raw: Find-NetRoute -RemoteIPAddress "{{item.item.gateway }}" | select -first 1  -expandproperty interfaceindex
+    with_items: "{{ ret_static_route2.results }}"
+    register: ret_alias2
+    when:
+      - item.changed
+      - item.item.interface is undefined
+
+  # - debug:
+      # msg: "{{ ret_alias2.results }}"
+
+  # - debug:
+      # msg: "{{item.stdout_lines.0 }}"
+    # with_items: "{{ ret_alias.results }}"
+    # when: item.changed
+
+#interface undefined  --modify route
+#metric undifined
+  - name: set route interface(0) metric(0)
+    raw: New-NetRoute -DestinationPrefix '{{ item.item.item.dest }}' -InterfaceIndex '{{ item.stdout_lines.0 }}' -NextHop '{{ item.item.item.gateway }}'
+    with_items: "{{ ret_alias.results }}"
+    when:
+      - item.changed
+      - item.item.item.metric is undefined
+
+#interface undefined  --modify route
+#metric difined
+  - name: remove dest if metric different(0,1)
+    raw: Remove-NetRoute -DestinationPrefix '{{ item.item.dest }}' -NextHop '{{ item.item.gateway }}' -Confirm:$False
+    with_items: "{{ ret_alias2.results }}"
+    when:
+      - item.changed
+      - item.item.item.metric is defined
+      - item.item.stdout != ""
+
+  - name: set route interface(0) metric(1)
+    raw: New-NetRoute -DestinationPrefix '{{ item.item.item.dest }}' -InterfaceIndex '{{ item.stdout_lines.0 }}' -NextHop '{{ item.item.item.gateway }}' -RouteMetric '{{item.item.item.metric}}'
+    with_items: "{{ ret_alias2.results }}"
+    when:
+      - item.changed
+      - item.item.item.metric is defined
+
+# interface defined  --modify route
+# metric undifined
+  - name: set route interface(1) metric(0)
+    raw: New-NetRoute -DestinationPrefix '{{ item.item.dest }}' -InterfaceAlias '{{ item.item.interface }}' -NextHop '{{ item.item.gateway }}'
+    with_items: "{{ ret_static_route.results }}"
+    when:
+      - item.changed
+      - item.item.interface is defined
+      - item.item.metric is undefined
+
+#interface defined  --modify route
+# metric difined
+  - name: remove route if metric different(1,1)
+    raw: Remove-NetRoute -DestinationPrefix '{{ item.item.dest }}' -NextHop '{{ item.item.gateway }}' -Confirm:$False
+    with_items: "{{ ret_static_route2.results }}"
+    when:
+      - item.changed
+      - item.item.interface is defined
+      - item.item.metric is defined
+      - item.stdout != ""
+
+  - name: set route interface(1) metric(1)
+    raw: New-NetRoute -DestinationPrefix '{{ item.item.dest }}' -InterfaceAlias '{{ item.item.interface }}' -NextHop '{{ item.item.gateway }}' -RouteMetric '{{item.item.metric}}'
+    with_items: "{{ ret_static_route2.results }}"
+    when:
+      - item.changed
+      - item.item.interface is defined
+      - item.item.metric is defined
+
+#modify default gw
+  - name: Find-NetRoute for route gw
+    raw: Find-NetRoute -RemoteIPAddress '0.0.0.0' | select -first 1  -expandproperty interfaceindex
+    register: ret_index
+    with_together:
+      - "{{ VAR_NEC_WIN_static_route }}"
+      - "{{ret_gw.results}}"
+    when:
+      - item.0.interface is undefined
+      - item.1.changed
+
+  - name: route gw with metric
+    raw: Find-NetRoute -RemoteIPAddress '0.0.0.0' | select -first 1  -expandproperty interfaceindex
+    register: ret_index2
+    with_together:
+      - "{{ VAR_NEC_WIN_static_route }}"
+      - "{{ret_gw2.results}}"
+    when:
+      - item.0.interface is undefined
+      - item.1.changed
+
+
+  # - debug:
+      # msg: "{{ ret_index.results }}"
+
+#interface undefined  --modify default gw
+# metric undefined
+  - name: set default gw interface(0) metric(0)
+    raw: New-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceIndex '{{ item.stdout_lines.0 }}' -NextHop '{{ item.item.0.gateway }}'
+    with_items: "{{ ret_index.results }}"
+    when:
+     - item.changed
+     - item.item.0.metric is undefined
+
+#interface undefined  --modify default gw
+# metric defined
+  - name: remove route if metric different(0,1)
+    raw: Remove-NetRoute -DestinationPrefix '{{ item.item.dest }}' -NextHop '{{ item.item.gateway }}' -Confirm:$False
+    with_items: "{{ ret_index2.results }}"
+    when:
+      - item.changed
+      - item.item.interface is defined
+      - item.item.metric is defined
+      - item.stdout != ""
+
+  - name: set default gw interface(0) metric(1)
+    raw: New-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceIndex '{{ item.stdout_lines.0 }}' -NextHop '{{ item.item.0.gateway }}' -RouteMetric '{{ item.item.0.metric }}'
+    with_items: "{{ ret_index2.results }}"
+    when:
+     - item.changed
+     - item.item.0.metric is defined
+
+#interface defined   --modify default gw
+# metric undefined
+  - name: set default interface(1) metric(0)
+    raw: New-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias '{{ item.item.interface }}' -NextHop '{{ item.item.gateway }}'
+    with_items: "{{ ret_gw.results }}"
+    when:
+     - item.changed
+     - item.item.interface is defined
+     - item.item.metric is undefined
+
+#interface defined   --modify default gw
+#metric defined
+  - name: remove route if metric different(1,1)
+    win_shell: Remove-NetRoute -DestinationPrefix '{{ item.item.dest }}' -NextHop '{{ item.item.gateway }}' -Confirm:$False
+    with_items: "{{ ret_gw2.results }}"
+    when:
+     - item.changed
+     - item.item.interface is defined
+     - item.item.metric is defined
+     - item.stdout != ""
+
+  - name: set default gw interface(1) metric(1)
+    raw: New-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias '{{ item.item.interface }}' -NextHop '{{ item.item.gateway }}' -RouteMetric '{{ item.item.metric }}'
+    with_items: "{{ ret_gw2.results }}"
+    when:
+     - item.changed
+     - item.item.interface is defined
+     - item.item.metric is defined

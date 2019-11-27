@@ -1,0 +1,6 @@
+---
+command:
+  - Get-WmiObject -Class Win32_UserAccount
+  - "SecEdit.exe /export /cfg $env:windir\\Temp\\AdminName_Output.ini"
+  - "cat $env:windir\\Temp\\AdminName_Output.ini"
+  - "rm $env:windir\\Temp\\AdminName_Output.ini"

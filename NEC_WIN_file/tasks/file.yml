@@ -1,0 +1,22 @@
+---
+# win_file operation
+
+  - name: file create directory
+    win_file:
+        path: '{{ VAR_NEC_WIN_file_path | win_dirname }}'
+        state: directory
+    failed_when: VAR_NEC_WIN_file_path == ""
+    when: VAR_NEC_WIN_file_state == "present"
+
+  - name: file create file
+    win_file:
+        path: '{{ VAR_NEC_WIN_file_path }}'
+        state: touch
+    when: VAR_NEC_WIN_file_state == "present"
+
+  - name: file delete
+    win_file:
+       path: '{{ VAR_NEC_WIN_file_path }}'
+       state: absent
+    failed_when: VAR_NEC_WIN_file_path == ""
+    when: VAR_NEC_WIN_file_state == "absent"

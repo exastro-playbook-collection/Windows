@@ -1,0 +1,62 @@
+---
+# not check `COMPLIANCE030201` by ansible-lint
+- name: check param VAR_userRightsAssign_info
+  fail:
+    msg: "The variable VAR_userRightsAssign_info must be defined and cannot be NULL."
+  when: "(VAR_userRightsAssign_info is undefined) or (VAR_userRightsAssign_info is none) or (VAR_userRightsAssign_info == '')"
+
+- name: check param VAR_userRightsAssign_info.name
+  fail:
+    msg: "The variable VAR_userRightsAssign_info.name must be defined and cannot be NULL."
+  with_items: "{{ VAR_userRightsAssign_info }}"
+  when: "(item.name is undefined) or (item.name is none) or (item.name == '')"
+
+- name: check param VAR_userRightsAssign_info.user
+  fail:
+    msg: "The variable VAR_userRightsAssign_info.user must be defined and cannot be NULL."
+  with_items: "{{ VAR_userRightsAssign_info }}"
+  when: "(item.user is undefined) or (item.user is none) or (item.user == '')"
+
+- name: check param VAR_userRightsAssign_info.action
+  fail:
+    msg: "The variable VAR_userRightsAssign_info.action must be defined and cannot be NULL."
+  with_items: "{{ VAR_userRightsAssign_info }}"
+  when: "(item.action is undefined) or (item.action is none) or (item.action == '')"
+
+- name: valid policy list
+  set_fact:
+    policy_list:
+      - setcbprivilege
+      - seincreasequotaprivilege
+      - sechangenotifyprivilege
+      - seimpersonateprivilege
+      - seservicelogonright
+      - sedenyservicelogonright
+      - sesecurityprivilege
+      - seassignprimarytokenprivilege
+
+- name: check param VAR_userRightsAssign_info.name valid
+  fail:
+    msg: "The name of the User Right '{{ item.name }}' is invalid."
+  with_items: "{{ VAR_userRightsAssign_info }}"
+  when: item.name.lower() not in policy_list
+
+- name: valid action list
+  set_fact:
+    action_list:
+      - add
+      - remove
+      - set
+
+- name: check param VAR_userRightsAssign_info.action valid
+  fail:
+    msg: "The variable VAR_userRightsAssign_info.action can only be these values: add, remove, set."
+  with_items: "{{ VAR_userRightsAssign_info }}"
+  when: item.action.lower() not in action_list
+
+- name: set user rights
+  win_user_right:
+    name: "{{ item.name }}"
+    users: "{{ item.user }}"
+    action: "{{ item.action }}"
+  with_items: "{{ VAR_userRightsAssign_info }}"

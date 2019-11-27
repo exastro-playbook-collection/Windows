@@ -1,0 +1,10 @@
+---
+file:
+  - name: $env:windir\System32\drivers\etc\hosts
+    quote: '"'
+command:
+  - Get-NetAdapter | Format-List -Property Name
+  - Get-DnsClientServerAddress -AddressFamily IPv4 | Format-List -Property InterfaceAlias,ServerAddresses
+  - Get-DnsClient | Format-List -Property InterfaceAlias,ConnectionSpecificSuffix
+registry:
+  - HKLM:\SYSTEM\ControlSet002\Services\Tcpip\Parameters\Interfaces\

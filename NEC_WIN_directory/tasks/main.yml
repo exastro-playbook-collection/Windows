@@ -1,0 +1,7 @@
+---
+  - name: check whether VAR_NEC_WIN_directory is defined or not
+    import_tasks: modify.yml
+    when:
+      - VAR_NEC_WIN_directory is defined
+      - VAR_NEC_WIN_directory is not none
+      - VAR_NEC_WIN_directory != ""

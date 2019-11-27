@@ -1,0 +1,69 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#
+# tasks file for team members
+#
+#####
+  - name: check team members exists
+    win_shell: (Get-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}').Name
+    register: ret_pre_physical
+    with_items: "{{ VAR_NEC_WIN_teaming.0.members }}"
+    changed_when: not ret_pre_physical.stdout | search('(^|\r\n)'+ item.name +'(\r\n|$)')
+
+  # - debug:
+      # msg: "{{ ret_pre_physical }} "
+
+  - name: check parameter mode
+    assert:
+      msg: " members mode is null!"
+      that: not ((item.item.mode is defined) and (not item.item.mode))
+    with_items: "{{ ret_pre_physical.results }}"
+
+  - name: add team members
+    win_shell: Add-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -AdministrativeMode '{{ item.item.mode }}' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_physical.results }}"
+    when:
+      - item.changed == true
+      - item.item.mode is defined
+
+  - name: add team members
+    win_shell: Add-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -AdministrativeMode 'Active' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_physical.results }}"
+    when:
+      - item.changed == true
+      - item.item.mode is undefined
+
+#####
+  - name: check team members mode
+    win_shell: (Get-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -Name '{{ item.name }}').AdministrativeMode
+    register: ret_pre_physical_mode
+    with_items: "{{ VAR_NEC_WIN_teaming.0.members }}"
+    when: item.mode is defined
+    changed_when: ret_pre_physical_mode.stdout_lines.0 != item.mode
+
+  # - debug:
+      # msg: "{{ ret_pre_physical_mode }} "
+
+  - name: set team members
+    win_shell: Set-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -AdministrativeMode '{{ item.item.mode }}' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_physical_mode.results }}"
+    register: ret
+    ignore_errors: true
+    when:
+      - item.changed == true
+      - item.item.mode is defined
+
+  # - debug:
+      # msg: "{{ ret }}"
+
+  # - pause:
+      # minutes: 5
+
+  - name: set team members
+    win_shell: Set-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -AdministrativeMode 'Active' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_physical_mode.results }}"
+    when:
+      - item.changed == false
+      - item.item.mode is undefined
+

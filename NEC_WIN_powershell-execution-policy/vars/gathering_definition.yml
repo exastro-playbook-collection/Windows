@@ -1,0 +1,3 @@
+---
+command:
+  - Get-ExecutionPolicy -List | Format-List -Property Scope,ExecutionPolicy

@@ -1,0 +1,212 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+# not check `COMPLIANCE030206` by ansible-lint
+# change hostname
+#
+# "workgroup" --> "workgroup"
+  - name: modify type ("workgroup" --> "workgroup")
+    win_shell: >
+      Add-Computer -WorkGroupName '{{ VAR_NEC_WIN_hostname_workgroup }}' -Force
+    when:
+      - type_old == "workgroup"
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+      - VAR_NEC_WIN_hostname_workgroup is defined
+    register: ret_type_change_1
+
+  - name: notify reboot 1
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - type_old == "workgroup"
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+      - VAR_NEC_WIN_hostname_workgroup is defined
+      - VAR_NEC_WIN_hostname_reboot == true
+
+# "domain" --> "workgroup"
+  - name: modify type ("domain" --> "workgroup")
+    win_shell: >
+      Add-Computer -WorkGroupName '{{ VAR_NEC_WIN_hostname_workgroup }}' -Credential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_current_domain_auth.user }}@{{ ret_pre_type_value.stdout_lines.0 }}', (ConvertTo-SecureString "{{ VAR_NEC_WIN_hostname_current_domain_auth.password }}" -AsPlainText -Force) ) -Force
+    when:
+      - type_old == "domain"
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+    register: ret_type_change_2
+
+  - name: notify reboot 2
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - type_old == "domain"
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+      - VAR_NEC_WIN_hostname_reboot == true
+
+# "domain" --> "domain"
+  - name: modify type ("domain" --> "domain")
+    block:
+      - name: Find-NetRoute Get interfaceAlias
+        win_shell: (Find-NetRoute -RemoteIPAddress "{{ VAR_NEC_WIN_hostname_domain.ip }}")[0].InterfaceAlias
+        register: ret_interface
+        changed_when: true
+
+      - name: Get-DnsClientServerAddress
+        win_shell:  (Get-DnsClientServerAddress -interfaceAlias "{{ ret_interface.stdout_lines.0 }}" -AddressFamily "IPv4").ServerAddresses
+        register: ret_dns
+        changed_when: ret_dns.stdout.find(VAR_NEC_WIN_hostname_domain.ip) == -1
+
+      - name: set new dns
+        set_fact:
+          new_dns: "{{ VAR_NEC_WIN_hostname_domain.ip + ',' + ','.join(ret_dns.stdout_lines) }}"
+        when: ret_dns | changed
+
+      - name: Set-DnsClientServerAddress
+        win_shell: Set-DnsClientServerAddress -interfaceAlias "{{ ret_interface.stdout_lines.0 }}"  -ServerAddresses ("{{ new_dns }}")
+        register: ret_add_dns
+        when: ret_dns | changed
+
+      - name: change domain to domain
+        win_shell: >
+          Add-Computer -DomainName '{{ VAR_NEC_WIN_hostname_domain.name }}' -UnjoinDomainCredential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_current_domain_auth.user }}@{{ ret_pre_type_value.stdout_lines.0 }}', (ConvertTo-SecureString "{{ VAR_NEC_WIN_hostname_current_domain_auth.password }}" -AsPlainText -Force)) -Credential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_domain.user }}@{{ VAR_NEC_WIN_hostname_domain.name }}', (ConvertTo-SecureString "{{ VAR_NEC_WIN_hostname_domain.password }}" -AsPlainText -Force) )
+        register: ret_type_change_3
+    when:
+      - type_old == "domain"
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - VAR_NEC_WIN_hostname_domain is defined
+
+  - name: notify reboot 3
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - type_old == "domain"
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - VAR_NEC_WIN_hostname_domain is defined
+      - VAR_NEC_WIN_hostname_reboot == true
+
+# "workgroup" --> "domain"
+  - name: modify type ("workgroup" --> "domain")
+    block:
+      - name: Find-NetRoute Get interfaceAlias
+        win_shell: (Find-NetRoute -RemoteIPAddress "{{ VAR_NEC_WIN_hostname_domain.ip }}")[0].InterfaceAlias
+        register: ret_interface1
+        changed_when: true
+
+      - name: Get-DnsClientServerAddress
+        win_shell:  (Get-DnsClientServerAddress -interfaceAlias "{{ ret_interface1.stdout_lines.0 }}" -AddressFamily "IPv4").ServerAddresses
+        register: ret_dns1
+        changed_when: ret_dns1.stdout.find(VAR_NEC_WIN_hostname_domain.ip) == -1
+
+      - name: set new dns
+        set_fact:
+          new_dns1: "{{ VAR_NEC_WIN_hostname_domain.ip + ',' + ','.join(ret_dns1.stdout_lines) }}"
+        when: ret_dns1 | changed
+
+      - name: Set-DnsClientServerAddress
+        win_shell: Set-DnsClientServerAddress -interfaceAlias "{{ ret_interface1.stdout_lines.0 }}"  -ServerAddresses ("{{ new_dns1 }}")
+        register: ret_add_dns
+        when: ret_dns1 | changed
+
+      - name: change workgroup to domain
+        win_shell: >
+          Add-Computer -DomainName '{{ VAR_NEC_WIN_hostname_domain.name }}' -Credential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_domain.user }}@{{ VAR_NEC_WIN_hostname_domain.name }}', (ConvertTo-SecureString "{{ VAR_NEC_WIN_hostname_domain.password }}" -AsPlainText -Force) )
+        register: ret_type_change_4
+    when:
+      - type_old == "workgroup"
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+
+  - name: notify reboot 4
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - VAR_NEC_WIN_hostname_reboot == true
+      - type_old == "workgroup"
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+
+  - name: modify hostname when type is "domain" and type has not changed
+    win_shell: >
+      Rename-Computer -NewName '{{ VAR_NEC_WIN_hostname }}' -DomainCredential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_current_domain_auth.user }}@{{ ret_pre_type_value.stdout_lines.0 }}',(ConvertTo-SecureString '{{ VAR_NEC_WIN_hostname_current_domain_auth.password }}' -AsPlainText -Force)) -Force
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - ret_type_change_3 | skipped and ret_type_change_4 | skipped
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+    register: ret_name_change_1
+
+  - name: notify reboot 5
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - ret_type_change_3 | skipped and ret_type_change_4 | skipped
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+      - VAR_NEC_WIN_hostname_reboot == true
+
+  - name: modify hostname when type is "domain" and type has changed
+    win_shell: >
+      Rename-Computer -NewName '{{ VAR_NEC_WIN_hostname }}' -DomainCredential (New-Object System.Management.Automation.PsCredential '{{ VAR_NEC_WIN_hostname_domain.user }}@{{ VAR_NEC_WIN_hostname_domain.name }}',(ConvertTo-SecureString '{{ VAR_NEC_WIN_hostname_domain.password }}' -AsPlainText -Force)) -Force
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - ret_type_change_3 | changed or ret_type_change_4 | changed
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+    register: ret_name_change_2
+
+  - name: notify reboot 6
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "domain"
+      - ret_type_change_3 | changed or ret_type_change_4 | changed
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+      - VAR_NEC_WIN_hostname_reboot == true
+
+  - name: modify hostname when type is "workgroup"
+    win_shell: Rename-Computer -NewName '{{ VAR_NEC_WIN_hostname }}' -Force
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+    register: ret_name_change_3
+
+  - name: notify reboot 7
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - VAR_NEC_WIN_hostname_type.lower() == "workgroup"
+      - ret_pre_name.stdout.lower() != VAR_NEC_WIN_hostname.lower()
+      - VAR_NEC_WIN_hostname_reboot == true
+
+  - meta: flush_handlers
+
+  - name: changed required value
+    set_fact:
+      NEC_WIN_reboot_required: "{{ not VAR_NEC_WIN_hostname_reboot }}"
+    when:
+      - ret_type_change_1 | changed or ret_type_change_2 | changed or ret_type_change_3 | changed or ret_type_change_4 | changed or ret_name_change_1 | changed or ret_name_change_2 | changed or ret_name_change_3 | changed
+
+  - debug:
+      msg: "required: {{ NEC_WIN_reboot_required }} "
+    tags:
+      - skip_ansible_lint

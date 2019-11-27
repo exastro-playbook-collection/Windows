@@ -1,0 +1,3 @@
+---
+#default vars
+VAR_NEC_WIN_virtual_memory_reboot: false

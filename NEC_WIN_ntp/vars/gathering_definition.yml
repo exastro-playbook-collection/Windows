@@ -1,0 +1,6 @@
+---
+command:
+  - Get-WmiObject -Class win32_service | where {$_.name -eq 'w32time'}
+  - Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/DateTime/Servers/"
+  - Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters/"
+  - Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/"

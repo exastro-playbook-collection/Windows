@@ -1,0 +1,26 @@
+---
+#
+# post check members
+#
+# post check team members exists
+  - name: post check team members exists 1
+    win_shell: (Get-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}').Name
+    register: ret_post_physical
+    with_items: "{{ VAR_NEC_WIN_teaming.0.members }}"
+    failed_when: not ret_post_physical.stdout | search('(^|\r\n)'+ item.name +'(\r\n|$)')
+
+# post check team members mode
+  - name: check team members mode 2
+    win_shell: (Get-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -Name '{{ item.name }}').AdministrativeMode
+    register: ret_post_physical_mode
+    with_items: "{{ VAR_NEC_WIN_teaming.0.members }}"
+    when: item.mode is defined
+    changed_when: ret_post_physical_mode.stdout_lines.0 != item.mode
+
+ # post check team members mode
+  - name: check team members mode 3
+    win_shell: (Get-NetLbfoTeamMember -Team '{{ VAR_NEC_WIN_teaming.0.name }}' -Name '{{ item.name }}').AdministrativeMode
+    register: ret_post_physical_mode
+    with_items: "{{ VAR_NEC_WIN_teaming.0.members }}"
+    when: item.mode is undefined
+    changed_when: not ret_post_physical_mode.stdout | search('Active')

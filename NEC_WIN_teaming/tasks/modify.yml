@@ -1,0 +1,127 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#
+# change teaming
+#
+
+# add team
+  # - name: add team
+    # win_shell: "{{ add_command }} -Confirm:$False"
+    # with_items: "{{ ret_pre_teaming.results }}"
+    # when: item.changed == true
+
+  - name: add team variable 1
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is undefined
+      - ret_pre_teaming.results.0.item.mode is undefined
+      - ret_pre_teaming.results.0.item.lb_argorithm is undefined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 2
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamNicName '{{ ret_pre_teaming.results.0.item.interfaces.0.name }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is defined
+      - ret_pre_teaming.results.0.item.interfaces.0.name is defined
+      - ret_pre_teaming.results.0.item.mode is undefined
+      - ret_pre_teaming.results.0.item.lb_argorithm is undefined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 3
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamingMode '{{ ret_pre_teaming.results.0.item.mode }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is undefined
+      - ret_pre_teaming.results.0.item.mode is defined
+      - ret_pre_teaming.results.0.item.lb_argorithm is undefined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 4
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -LoadBalancingAlgorithm '{{ ret_pre_teaming.results.0.item.lb_argorithm }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is undefined
+      - ret_pre_teaming.results.0.item.mode is undefined
+      - ret_pre_teaming.results.0.item.lb_argorithm is defined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 5
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamNicName '{{ ret_pre_teaming.results.0.item.interfaces.0.name }}' -TeamingMode '{{ ret_pre_teaming.results.0.item.mode }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is defined
+      - ret_pre_teaming.results.0.item.interfaces.0.name is defined
+      - ret_pre_teaming.results.0.item.mode is defined
+      - ret_pre_teaming.results.0.item.lb_argorithm is undefined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 6
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamNicName '{{ ret_pre_teaming.results.0.item.interfaces.0.name }}' -LoadBalancingAlgorithm '{{ ret_pre_teaming.results.0.item.lb_argorithm }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is defined
+      - ret_pre_teaming.results.0.item.interfaces.0.name is defined
+      - ret_pre_teaming.results.0.item.mode is undefined
+      - ret_pre_teaming.results.0.item.lb_argorithm is defined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 7
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamingMode '{{ ret_pre_teaming.results.0.item.mode }}' -LoadBalancingAlgorithm '{{ ret_pre_teaming.results.0.item.lb_argorithm }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is undefined
+      - ret_pre_teaming.results.0.item.mode is defined
+      - ret_pre_teaming.results.0.item.lb_argorithm is defined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+  - name: add team variable 8
+    win_shell: New-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamMembers '{{ ret_pre_teaming.results.0.item.members | join("','", attribute='name')}}' -TeamNicName '{{ ret_pre_teaming.results.0.item.interfaces.0.name }}' -TeamingMode '{{ ret_pre_teaming.results.0.item.mode }}' -LoadBalancingAlgorithm '{{ ret_pre_teaming.results.0.item.lb_argorithm }}' -Confirm:$False
+    when:
+      - ret_pre_teaming.results.0.changed == true
+      - ret_pre_teaming.results.0.item.interfaces is defined
+      - ret_pre_teaming.results.0.item.interfaces.0.name is defined
+      - ret_pre_teaming.results.0.item.mode is defined
+      - ret_pre_teaming.results.0.item.lb_argorithm is defined
+    # with_items: "{{ ret_pre_teaming.results }}"
+
+# post check team exists
+  - name: post check team exists
+    win_shell: (Get-NetLbfoTeam).Name
+    register: ret_post_teaming
+    failed_when: not ret_post_teaming.stdout | search('(^|\r\n)'+VAR_NEC_WIN_teaming.0.name+'(\r\n|$)')
+    # with_items: "{{ VAR_NEC_WIN_teaming }}"
+
+  # - debug:
+      # msg: "{{ ret_post_teaming }} "
+
+# set team
+  - name: set team 1
+    win_shell: "Set-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -TeamingMode '{{ ret_pre_teaming.results.0.item.mode }}' -Confirm:$False"
+    # with_items: "{{ ret_pre_teaming.results }}"
+    when:
+      - ret_pre_teaming.results.0.changed == false
+      - ret_pre_mode | changed
+
+  - name: set team 2
+    win_shell: "Set-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}' -LoadBalancingAlgorithm '{{ ret_pre_teaming.results.0.item.lb_argorithm }}' -Confirm:$False"
+    # with_items: "{{  ret_pre_teaming.results }}"
+    when:
+      - ret_pre_teaming.results.0.changed == false
+      - ret_pre_lb_argorithm | changed
+
+
+# interfaces
+  - include_tasks: modify_interfaces.yml
+    when:
+      - ret_pre_teaming.results.0.item.interfaces is defined
+      - not not ret_pre_teaming.results.0.item.interfaces
+
+
+# members
+  - include_tasks: modify_members.yml
+    when:
+      - ret_pre_teaming.results.0.item.members is defined
+      - not not ret_pre_teaming.results.0.item.members

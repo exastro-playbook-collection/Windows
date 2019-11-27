@@ -1,0 +1,6 @@
+---
+command:
+  - "secedit /export /areas USER_RIGHTS /cfg $env:windir\\Temp\\policies.txt"
+  - "cat $env:windir\\Temp\\policies.txt"
+  - "rm $env:windir\\Temp\\policies.txt"
+  - "wmic group get name,sid;wmic useraccount get name,sid"

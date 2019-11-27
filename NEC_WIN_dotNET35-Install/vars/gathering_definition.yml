@@ -1,0 +1,6 @@
+---
+command:
+  - "Get-WindowsFeature -Name NET-Framework-Features"
+  - "Get-WindowsFeature -Name NET-Framework-Core"
+  - "Get-WindowsFeature -Name NET-HTTP-Activation"
+  - "Get-WindowsFeature -Name NET-Non-HTTP-Activ"

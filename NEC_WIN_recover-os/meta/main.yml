@@ -1,0 +1,13 @@
+---
+galaxy_info:
+  author: NEC
+  description:
+  company: NEC CO.
+  license: license (BSD)
+  min_ansible_version: 2.7 (or higher)
+  platforms:
+   - Windows2016
+  galaxy_tags:
+  categories: []
+
+# meta

@@ -1,0 +1,10 @@
+---
+command:
+  - (Get-WmiObject -Class Win32_ComputerSystem).Domain
+  - (Get-WMIObject -Class Win32_ComputerSystem).PartOfDomain
+  - Write-Host -NoNewline (hostname)
+  - nslookup (Get-WmiObject -Class Win32_ComputerSystem).Domain
+  - (Get-WmiObject -class Win32_OperatingSystem).lastbootuptime
+
+registry:
+  - HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\

@@ -1,0 +1,24 @@
+---
+#
+# defaults file for hostname_win
+#
+
+# default hostname value
+# VAR_NEC_WIN_hostname: "testpc-002"
+
+# default domain info
+VAR_NEC_WIN_hostname_type: "workgroup"
+# VAR_NEC_WIN_hostname_workgroup: ""
+# VAR_NEC_WIN_hostname_domain:
+  # name: "test2.com"
+  # user: "dutete"
+  # password: "eds1234*"
+
+# VAR_NEC_WIN_hostname_type_current_domain: "domain"
+# VAR_NEC_WIN_hostname_current_domain_auth:
+  # name: "test1.com"
+  # user: "dutest2"
+  # password: "abc123$%"
+
+# default restart
+VAR_NEC_WIN_hostname_reboot: false

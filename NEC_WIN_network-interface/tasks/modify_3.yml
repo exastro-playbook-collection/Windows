@@ -1,0 +1,40 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#
+# change interface
+#
+# IP: enable dhcp
+  - name: enable dhcp
+    win_shell: Set-NetIPInterface -InterfaceAlias "{{ item.item.name }}" -AddressFamily IPv4 -Dhcp Enabled
+    with_items: "{{ dhcp_ret_pre.results }}"
+    when: item.changed == true
+
+  - name: wait 5s for interface setted
+    wait_for_connection:
+      delay: 5
+    delegate_to: 127.0.0.1
+
+# Netbios: set netbios mode dhcp
+  - name: set netbios mode dhcp
+    win_shell: (Get-WMIObject -Class Win32_NetworkAdapterConfiguration |Where-Object {$_.InterfaceIndex -eq (Get-NetIPAddress -InterfaceAlias "{{ item.item.name }}" -AddressFamily IPv4).ifIndex}).SetTcpipNetBios("0")
+    with_items: "{{ netbios_dhcp_ret_pre.results }}"
+    when:
+      - item.changed == true
+      - item.item.netbios == "dhcp"
+
+# Netbios: set netbios mode enabled
+  - name: set netbios mode enabled
+    win_shell: (Get-WMIObject -Class Win32_NetworkAdapterConfiguration |Where-Object {$_.InterfaceIndex -eq (Get-NetIPAddress -InterfaceAlias "{{ item.item.name }}" -AddressFamily IPv4).ifIndex}).SetTcpipNetBios("1")
+    with_items: "{{ netbios_dhcp_ret_pre.results }}"
+    when:
+      - item.changed == true
+      - item.item.netbios == "enabled"
+
+# Netbios: set netbios mode disabled
+  - name: set netbios mode disabled
+    win_shell: (Get-WMIObject -Class Win32_NetworkAdapterConfiguration |Where-Object {$_.InterfaceIndex -eq (Get-NetIPAddress -InterfaceAlias "{{ item.item.name }}" -AddressFamily IPv4).ifIndex}).SetTcpipNetBios("2")
+    with_items: "{{ netbios_dhcp_ret_pre.results }}"
+    when:
+      - item.changed == true
+      - item.item.netbios == "disabled"

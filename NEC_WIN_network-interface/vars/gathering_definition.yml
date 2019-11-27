@@ -1,0 +1,7 @@
+---
+command:
+  - Get-NetAdapter | Format-List -Property Name,Status,InstanceID
+  - Get-NetIPAddress -AddressFamily IPv4 | Format-List -Property InterfaceAlias,IPAddress,PrefixLength
+  - Get-NetIPConfiguration
+  - Get-NetIPInterface -AddressFamily IPv4 | Format-List -Property InterfaceAlias, Dhcp
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces" /s

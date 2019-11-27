@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: NEC
+  description:
+  company: NEC CO.
+  license: license (BSD)
+  min_ansible_version: 2.7 (or higher)
+  platforms:
+   - RHEL7
+  galaxy_tags:
+  categories: []
+
+# meta
+dependencies:
+  - {role: NEC_WIN_reboot, NEC_WIN_reboot_nop: yes }

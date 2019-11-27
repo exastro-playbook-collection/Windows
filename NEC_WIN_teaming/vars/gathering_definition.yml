@@ -1,0 +1,6 @@
+---
+command:
+  - Get-NetLbfoTeam
+  - Get-NetLbfoTeamNic
+  - Get-NetLbfoTeamMember
+

@@ -1,0 +1,38 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+#modify.yml
+  - name: check paramters
+    assert:
+      msg: " paramters is wrong !"
+      that:
+        - VAR_NEC_WIN_remote_desktop_state == "enabled" or VAR_NEC_WIN_remote_desktop_state == "disabled"
+        - VAR_NEC_WIN_remote_desktop_nla == "enabled" or VAR_NEC_WIN_remote_desktop_nla == "disabled"
+        - VAR_NEC_WIN_remote_desktop_modify_firewall_exception == true or VAR_NEC_WIN_remote_desktop_modify_firewall_exception == false
+
+#rdp_flag
+  - name: set_fact for rdp_stat
+    set_fact:
+      rdp_stat: '{{ {"enabled": "1", "disabled": "0"}[VAR_NEC_WIN_remote_desktop_state] }}'
+
+  #nla_stat
+  - name: set_fact for nla_stat
+    set_fact:
+      nla_stat: '{{ {"enabled": "1", "disabled": "0"}[VAR_NEC_WIN_remote_desktop_nla] }}'
+
+  #fw_stat
+  - name: set_fact for fw_stat
+    set_fact:
+      fw_stat: '{{ { true: "1",false: "0"}[VAR_NEC_WIN_remote_desktop_modify_firewall_exception] }}'
+
+  # - debug:
+      # msg: "rdp_stat:{{rdp_stat}},fw_stat: {{ fw_stat }},nla_stat:{{nla_stat}}"
+
+#modify remote_desktop  setting
+  - name: modify remote_desktop  setting
+    raw: (Get-WmiObject win32_TerminalServiceSetting -Namespace 'root\cimv2\TerminalServices').SetAllowTSConnections( {{ rdp_stat }},{{ fw_stat }})
+    changed_when: true
+
+#modify NLA mode
+  - name: modify NLA mode
+    raw: (Get-WmiObject -class Win32_TSGeneralSetting -Namespace root\cimv2\terminalservices  -Filter "TerminalName='RDP-tcp'").setUserAuthenticationRequired( {{nla_stat}} )
+    changed_when: true

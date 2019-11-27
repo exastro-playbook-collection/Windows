@@ -1,0 +1,102 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+#
+# Check interface
+#
+# check parameter 0
+  - name: check parameter 0
+    assert:
+      msg: "the network name(parameter) is invalid."
+      that: (item.name is defined) and (not not item.name)
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+# check parameter 1
+  - name: check parameter 1
+    assert:
+      msg: "the state(parameter) is invalid."
+      that: (item.state is defined) and (item.state.lower() == "up" or item.state.lower() == "disabled")
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+# Check if nic status is Up or Disabled
+  - name: Check if nic status is Up or Disabled failed when not exist
+    win_shell: (NetAdapter -Name "{{ item.name }}" ).Status
+    register: interface_ret
+    changed_when: interface_ret.stdout_lines.0.lower() != item.state
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+#  - debug:
+#     msg: "{{ interface_ret }} "
+
+# check parameter 2
+  - name: check parameter 2
+    assert:
+      msg: "the dhcp(parameter) is invalid."
+      that: (item.dhcp is defined) and (item.dhcp == true or item.dhcp == false)
+    when: item.state.lower() == "up"
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+# check parameter 3
+  - include_tasks: pre_check_ipaddresses.yml
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+    loop_control:
+      loop_var: VAR_interface
+    when:
+      - VAR_interface.state.lower() == "up"
+      - VAR_interface.dhcp == false
+
+# check parameter 4
+  - name: check parameter 4
+    assert:
+      msg: "the netbios(parameter) is invalid."
+      that: (item.netbios is defined) and (item.netbios.lower() == "dhcp" or item.netbios.lower() == "enabled" or item.netbios.lower() == "disabled")
+    when: item.state.lower() == "up"
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+  - name: check need changed ip
+    set_fact:
+    when:
+      - item.state.lower() == "up"
+      - item.dhcp is defined
+      - not item.dhcp
+    changed_when:
+      - item.state.lower() == "up"
+      - item.dhcp is defined
+      - not item.dhcp
+    register: static_ret_pre
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+# - debug:
+# msg: "{{ static_ret_pre.results }}"
+
+# check whether dhcp is enabled
+  - name: check need change dhcp is enabled
+    set_fact:
+    when:
+      - item.state.lower() == "up"
+      - item.dhcp is defined
+      - item.dhcp
+    changed_when:
+      - item.state.lower() == "up"
+      - item.dhcp is defined
+      - item.dhcp
+    register: dhcp_ret_pre
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+#  - debug:
+#      msg: "{{ dhcp_ret_pre }} "
+
+# check netbios mode is dhcp
+  - name: check need changed netbios mode
+    set_fact:
+    when:
+      - item.state.lower() == "up"
+      - item.netbios is defined
+    changed_when:
+      - item.state.lower() == "up"
+      - item.netbios is defined
+    register: netbios_dhcp_ret_pre
+    with_items: "{{ VAR_NEC_WIN_network_interface }}"
+
+  # - debug:
+      # msg: "{{ netbios_dhcp_ret_pre.results }}"
+

@@ -1,0 +1,33 @@
+---
+#post check
+
+  - name: post check rdp status setting
+    raw: (Get-WmiObject win32_TerminalServiceSetting -Namespace root\cimv2\TerminalServices).AllowTSConnections
+    register: post_rdp
+    failed_when: post_rdp.stdout_lines.0 !=  rdp_stat
+    changed_when: post_rdp.rc != 0
+
+# post_check firewall rule modifed
+  - name: post_check  rdp firewall rules yes
+    raw: (Get-NetFirewallRule -Name RemoteDesktop* | ? Enabled -eq 'True').Count
+    register: post_fw
+    when:
+      - VAR_NEC_WIN_remote_desktop_modify_firewall_exception
+      - VAR_NEC_WIN_remote_desktop_state == "enabled"
+    failed_when: post_fw.stdout_lines.0 != "3"
+
+  - name: post_check  rdp firewall rules yes
+    raw: (Get-NetFirewallRule -Name RemoteDesktop* | ? Enabled -eq 'True').Count
+    register: post_fw
+    when:
+      - VAR_NEC_WIN_remote_desktop_modify_firewall_exception
+      - VAR_NEC_WIN_remote_desktop_state == "disabled"
+    failed_when: post_fw.stdout_lines.0 != "0"
+
+ #post_check nla status  modifed
+  - name: post_check nla status  setting
+    raw: (Get-WmiObject -class Win32_TSGeneralSetting -Namespace root\cimv2\terminalservices  -Filter "TerminalName='RDP-tcp'").UserAuthenticationRequired
+    register: post_nla
+    when: VAR_NEC_WIN_remote_desktop_state == "enabled"
+    failed_when: post_nla.stdout_lines.0 != nla_stat
+

@@ -1,0 +1,16 @@
+---
+#
+# post check teaming
+#
+
+# post check interfaces
+  - include_tasks: post_check_interfaces.yml
+    when:
+      - VAR_NEC_WIN_teaming.0.interfaces is defined
+      - VAR_NEC_WIN_teaming.0.interfaces != []
+
+# post check members
+  - include_tasks: post_check_members.yml
+    when:
+      - VAR_NEC_WIN_teaming.0.members is defined
+      - VAR_NEC_WIN_teaming.0.members != []

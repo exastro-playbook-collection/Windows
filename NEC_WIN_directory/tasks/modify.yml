@@ -1,0 +1,36 @@
+---
+  - name: check parameter's defination
+    import_tasks: check.yml
+
+  - name: create directory
+    win_file:
+      path: "{{ VAR_NEC_WIN_directory }}"
+      state: directory
+
+  - name: set directory's owner
+    win_owner:
+      path: "{{ VAR_NEC_WIN_directory }}"
+      user: "{{ VAR_NEC_WIN_owner.user | default(ansible_user) }}"
+      recurse: "{{ VAR_NEC_WIN_owner.recurse | default(False) }}"
+    when:
+      - VAR_NEC_WIN_owner is defined
+      - VAR_NEC_WIN_owner is not none
+      - VAR_NEC_WIN_owner != ""
+      - VAR_NEC_WIN_owner.user is defined or VAR_NEC_WIN_owner.recurse is defined
+
+  - name: set directory's access rights
+    win_acl:
+      path: "{{ VAR_NEC_WIN_directory }}"
+      user: "{{ item.0.user }}"
+      rights: "{{ item.1 }}"
+      type: "{{ item.0.type }}"
+      state: "{{ item.0.state | default('present') }}"
+      inherit: "{{ item.0.inherit | default('None') }}"
+      propagation: "{{ item.0.propagation | default('None') }}"
+    with_subelements:
+      - "{{ VAR_NEC_WIN_acl }}"
+      - rights
+    when:
+      - VAR_NEC_WIN_acl is defined
+      - VAR_NEC_WIN_acl is not none
+      - VAR_NEC_WIN_acl != ""

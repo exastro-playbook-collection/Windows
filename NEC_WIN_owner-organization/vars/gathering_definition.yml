@@ -1,0 +1,9 @@
+---
+    registry:
+      - HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+      - HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion
+    command:
+      - Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' | findstr -i "RegisteredOwner"
+      - Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' | findstr -i "RegisteredOrganization"
+      - Get-ItemProperty 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion'
+      - Get-ItemProperty 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion'

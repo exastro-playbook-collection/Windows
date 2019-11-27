@@ -1,0 +1,6 @@
+---
+#remote_desktop task
+
+  - import_tasks: modify.yml
+
+  - import_tasks:  post_check.yml

@@ -1,0 +1,42 @@
+---
+#
+# post check ntp
+#
+
+# post check Parameters
+  - name: post check W32Time Parameters
+    block:
+      - name: post check Parameters NtpServer
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters/" -Name "NtpServer").NtpServer
+        register: ret_post_1
+        failed_when: ret_post_1.stdout_lines.0 != NtpServer
+
+      - name: post check Parameters Type
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters/" -Name "Type").Type
+        register: ret_post_2
+        failed_when: ret_post_2.stdout_lines.0 != Type
+
+      - name: post check Parameters CrossSiteSyncFlags
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "CrossSiteSyncFlags").CrossSiteSyncFlags
+        register: ret_post_3
+        failed_when: ret_post_3.stdout_lines.0 != CrossSiteSyncFlags
+
+      - name: post check Parameters ResolvePeerBackoffMaxTimes
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "ResolvePeerBackoffMaxTimes").ResolvePeerBackoffMaxTimes
+        register: ret_post_4
+        failed_when: ret_post_4.stdout_lines.0 != ResolvePeerBackoffMaxTimes
+
+      - name: post check Parameters ResolvePeerBackoffMinutes
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "ResolvePeerBackoffMinutes").ResolvePeerBackoffMinutes
+        register: ret_post_5
+        failed_when: ret_post_5.stdout_lines.0 != ResolvePeerBackoffMinutes
+
+      - name: post check NtpClient SpecialPollInterval
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "SpecialPollInterval").SpecialPollInterval
+        register: ret_post_6
+        failed_when: ret_post_6.stdout_lines.0 != SpecialPollInterval
+
+      - name: post check NtpClient EventLogFlags
+        win_shell: (Get-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "EventLogFlags").EventLogFlags
+        register: ret_post_6
+        failed_when: ret_post_6.stdout_lines.0 != EventLogFlags

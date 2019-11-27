@@ -1,0 +1,7 @@
+---
+registry: # レジストリ収集
+  - HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\
+command:
+  - (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management')
+  - (Get-WmiObject -class Win32_OperatingSystem).lastbootuptime
+

@@ -1,0 +1,36 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+  - name: check param psexecpolicy
+    fail:
+      msg: "Parameter 'psexecpolicy' should be defined and cannot be NULL."
+    when: (item.psexecpolicy is undefined) or (item.psexecpolicy is none) or (item.psexecpolicy == "")
+
+  - name: set variable that contains available execution policy
+    set_fact:
+        AVAILABLE_POLICY_LIST: ["RESTRICTED","ALLSIGNED","REMOTESIGNED","UNRESTRICTED","BYPASS","UNDEFINED"]
+
+  - name: check whether psexecpolicy is legal or not
+    fail:
+        msg: powershell's execution policy is unavailable
+    when: not item.psexecpolicy.strip().upper() in AVAILABLE_POLICY_LIST
+
+  - name: check psscope when it is defined
+    block:
+      - name: set variable that contains available scope
+        set_fact:
+            AVAILABLE_SCOPE_LIST: ["CURRENTUSER","LOCALMACHINE"]
+
+      - name: check whether psscope is legal or not
+        fail:
+            msg: powershell's scope is unavailable
+        when: (item.psscope is none) or (item.psscope == "") or (not item.psscope.strip().upper() in AVAILABLE_SCOPE_LIST)
+    when: item.psscope is defined
+
+  - name: set powershell's execution policy
+    win_shell: Set-ExecutionPolicy {{ item.psexecpolicy }} -Scope {{ item.psscope | default('LOCALMACHINE')}} -Force
+    failed_when: false
+
+  - name: check whether the setting is successful or not
+    win_shell: Get-ExecutionPolicy -Scope {{ item.psscope | default('LOCALMACHINE') }}
+    register: ret
+    failed_when: ret.stdout.upper() != item.psexecpolicy.upper() + "\r\n"

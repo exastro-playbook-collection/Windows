@@ -1,0 +1,4 @@
+---
+command:
+  - Get-NetRoute
+  - Get-NetAdapter | Format-List -Property Name,ifIndex

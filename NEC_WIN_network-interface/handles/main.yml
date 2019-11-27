@@ -1,0 +1,5 @@
+---
+  - name: changed enable dhcp
+    win_shell: Set-NetIPInterface -InterfaceAlias "{{ item.item.name }}" -AddressFamily IPv4 -Dhcp Enabled
+    with_items: "{{ dhcp_ret_pre.results }}"
+    when: item.changed == true

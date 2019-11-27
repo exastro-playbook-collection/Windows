@@ -1,0 +1,10 @@
+---
+file:
+  - name: $env:windir\bootstat.dat
+    quote: '"'
+registry:
+  - HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl
+command:
+  - bcdedit -v
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl"
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD

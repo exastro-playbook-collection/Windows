@@ -1,0 +1,53 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+#pre_check
+
+  - name: set_fact virtualmemory
+    set_fact:
+      virtualmemory: "{{ VAR_NEC_WIN_virtual_memory }}"
+      location: 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management'
+
+  - name: set variable "data" when type is "auto"
+    set_fact:
+      data: '?:\pagefile.sys'
+    when: virtualmemory.type == "auto"
+
+  - name: debug drive valuable when type is 'custom'
+    raw: (Get-WMIObject Win32_LogicalDisk -Filter "DeviceID='{{virtualmemory.drive}}:'").FreeSpace/1mb
+    register: disk_val_cus
+    when: virtualmemory.type == "custom"
+    failed_when: disk_val_cus.stdout_lines.0 | int < virtualmemory.size.min
+
+  - name: debug drive valuable when type is'sytem'
+    raw: (Get-WMIObject Win32_LogicalDisk -Filter "DeviceID='{{virtualmemory.drive}}:'").FreeSpace/1mb
+    register: disk_val
+    # when: virtualmemory.type == "system" or virtualmemory.type == "none"
+    when: virtualmemory.type == "system"
+    failed_when: disk_val.stdout_lines.0 | int == 0
+
+  - name: set variable "data" when type is "custom"
+    set_fact:
+      data: '{{virtualmemory.drive}}:\pagefile.sys {{ virtualmemory.size.min }} {{ virtualmemory.size.max }}'
+    when: virtualmemory.type == "custom"
+
+  - name: set variable "data" when type is "system"
+    set_fact:
+      data: '{{virtualmemory.drive}}:\pagefile.sys 0 0'
+    when: virtualmemory.type == "system"
+
+  - name: set variable "data" when type is "none"
+    set_fact:
+      data: ''
+    when: virtualmemory.type == "none"
+
+  - name: check param
+    assert:
+       that:
+         - virtualmemory.type != ""
+         - data is defined
+
+  - name: check registry value
+    raw: (Get-ItemProperty '{{ location }}').PagingFiles
+    register: pre_reg_val
+    changed_when: pre_reg_val.stdout != '{{ data }}\r\n'
+

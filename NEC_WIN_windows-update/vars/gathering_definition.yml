@@ -1,0 +1,17 @@
+---
+registry:
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\automaticMaintenanceEnabled
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AUOptions
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\allowMUUpdateService
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\NoAutoUpdate
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ScheduledInstallDay
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ScheduledInstallTime
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\WUServer
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\WUStatusServer
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\UseWUServer
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\TargetGroup
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\TargetGroupEnabled
+  - HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate
+command:
+  - reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+  - reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"

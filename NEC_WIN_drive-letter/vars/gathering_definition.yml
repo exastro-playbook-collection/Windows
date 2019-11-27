@@ -1,0 +1,3 @@
+---
+command:
+  - Get-Volume | Format-List DriveLetter

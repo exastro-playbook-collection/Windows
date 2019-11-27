@@ -1,0 +1,11 @@
+---
+registry:
+  - HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+command:
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v 'NV Domain'
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v 'SyncDomainWithMembership'
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v 'UseDomainNameDevolution'
+  - reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v 'SearchList'
+  - Get-NetAdapter | Format-List -Property Name
+  - Get-DnsClient |Format-Table -Property InterfaceAlias,ConnectionSpecificSuffix
