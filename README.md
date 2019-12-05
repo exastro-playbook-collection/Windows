@@ -162,10 +162,6 @@ RHEL のネットワーク設定は、NetworkManagerの起動有無で実現方�
 |NEC_WIN_ipv6-disabled|IPv6無効化設定|　　|
 |NEC_WIN_dns-suffix|DNSサフィックス設定|　　|
 
-# 参考情報
-* [SHIFT ware](https://shift-ware.github.io/ja/)
-* [Ansible 実践ガイドサンプルコード](https://gitlab.com/shkitayama/ansible_practical_guide)
-
 # Remarks
 -------
 
