@@ -1,0 +1,5 @@
+---
+registry:
+  - HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl
+command:
+  - Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl -Name Win32PrioritySeparation
