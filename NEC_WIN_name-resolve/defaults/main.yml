@@ -1,5 +1,5 @@
 ---
 #default vars
-VAR_NEC_WIN_name_resolve_hosts: "{{ VAR_NEC_name_resolve_hosts | default([]) }}"
-VAR_NEC_WIN_name_resolve_dns: "{{ VAR_NEC_name_resolve_dns | default([]) }}"
+# VAR_NEC_WIN_name_resolve_hosts: "{{ VAR_NEC_name_resolve_hosts | default([]) }}"
+# VAR_NEC_WIN_name_resolve_dns: "{{ VAR_NEC_name_resolve_dns | default([]) }}"
 

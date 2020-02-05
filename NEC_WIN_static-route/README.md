@@ -21,10 +21,11 @@
 
 ## Role Variables
 Role の変数値について説明します。
+注意事項：XXXXX というWindows/Linux共通の変数は廃止しました。RH_XXXXX、WIN_XXXXXというOS毎の変数設定が必要です。
 
 ### Mandatory variables
 ~~~
-　  * VAR_NEC_static_route(あるいはVAR\_NEC\_WIN\_static\_route):    # 静的ルート設定情報を設定する。※子項目は繰り返して設定できる
+　  * VAR_NEC_WIN_static_route:    # 静的ルート設定情報を設定する。※子項目は繰り返して設定できる
 　     - interface:           # ネットワークインタフェース設定名を設定する。※省略可能
 　       dest:                # ネットワーク宛先のIPアドレス（Prefixを付けることは可能）を指定する。
 　                            # ※destが設定されない及び0.0.0.0や、0.0.0.0/0の場合、固定ルートのゲートウェイとする。
@@ -74,7 +75,7 @@ Role の変数値について説明します。
 　   gather_facts: false
 　   roles:
 　     - role: Windows/NEC_WIN_static-route
-　       VAR_NEC_static_route:
+　       VAR_NEC_WIN_static_route:
 　         - interface: 'Ethernet0'
 　           dest: '10.0.0.0/24'
 　           gateway: '192.168.0.1'

@@ -21,13 +21,14 @@
 
 ## Role Variables
 Role の変数値について説明します。
+注意事項：XXXXX というWindows/Linux共通の変数は廃止しました。RH_XXXXX、WIN_XXXXXというOS毎の変数設定が必要です。
 
 ### Mandatory variables
 ~~~
-　  * VAR_NEC_name_resolve_hosts:  # （あるいはVAR_NEC_WIN_name_resolve_hosts）hostsファイルに設定する情報を設定する。※子項目は繰り返して設定できる。
+　  * VAR_NEC_WIN_name_resolve_hosts:  # hostsファイルに設定する情報を設定する。※子項目は繰り返して設定できる。
 　      - ip:                      # IPアドレス(IPv6非対応)  
 　        hostname:                # ホストネームを指定する。
-　  * VAR_NEC_name_resolve_dns:    # （あるいはVAR_NEC_WIN_name_resolve_dns）DNSサーバに関する情報を設定する。※子項目は繰り返して設定できる。
+　  * VAR_NEC_WIN_name_resolve_dns:    # DNSサーバに関する情報を設定する。※子項目は繰り返して設定できる。
 　      - servers:                 # DNSサーバのIPを指定する。複数のDNSサーバを設定できる。
 　        suffix                   # DNSサフィックス
 ~~~
@@ -35,8 +36,8 @@ Role の変数値について説明します。
 ### Optional variables
 
 ~~~
-　  * VAR_NEC_name_resolve_dns:    # （あるいはVAR_NEC_WIN_name_resolve_dns）DNSサーバに関する情報を設定する。※子項目は繰り返して設定できる。
-　      - nic_name:                # NIC名を設定する。設定しない場合、Find-NetRouteでserversのプライマリDNSサーバのIPにより自動的に取得する。 
+　  * VAR_NEC_WIN_name_resolve_dns:    # DNSサーバに関する情報を設定する。※子項目は繰り返して設定できる。
+　      - nic_name:                # NIC名を設定する。設定しない場合、Find-NetRouteでserversのプライマリDNSサーバのIPにより自動的に取得する。
 ~~~
 
 ## Dependencies
@@ -78,16 +79,16 @@ Role の変数値について説明します。
 　    gather_facts: false
 　    roles:
 　      - role: Windows/NEC_WIN_name-resolve
-　        VAR_NEC_name_resolve_hosts:
+　        VAR_NEC_WIN_name_resolve_hosts:
 　          - ip: '192.168.127.10'
 　            hostname: 'target10'
 　          - ip: '192.168.127.20'
 　            hostname: 'target20'
-　        VAR_NEC_name_resolve_dns:
+　        VAR_NEC_WIN_name_resolve_dns:
 　          - servers:
 　              - '172.28.181.10'
 　              - '192.168.127.1'
-　            suffix: 'test1.com'
+　            suffix: 'nec.cn'
 　          - nic_name： Ethernet0
 　            servers:
 　              - '169.254.27.5'
@@ -127,16 +128,16 @@ Role の変数値について説明します。
 　    gather_facts:  true
 　    roles:
 　      - role: Windows/NEC_WIN_name-resolve
-　        VAR_NEC_name_resolve_hosts:
+　        VAR_NEC_WIN_name_resolve_hosts:
 　          - ip: '192.168.127.10'
 　            hostname: 'target10'
 　          - ip: '192.168.127.20'
 　            hostname: 'target20'
-　        VAR_NEC_name_resolve_dns:
+　        VAR_NEC_WIN_name_resolve_dns:
 　          - servers:
 　              - '172.28.181.10'
 　              - '192.168.127.1'
-　            suffix: 'test1.com'
+　            suffix: 'nec.cn'
 　        tags:
 　          - NEC_WIN_name-resolve
 　  - import_playbook: win_name_resolve_evidence.yml VAR_gathering_label=after
