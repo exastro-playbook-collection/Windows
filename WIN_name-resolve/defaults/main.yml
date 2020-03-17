@@ -1,0 +1,5 @@
+---
+#default vars
+# VAR_WIN_name_resolve_hosts: "{{ VAR_name_resolve_hosts | default([]) }}"
+# VAR_WIN_name_resolve_dns: "{{ VAR_name_resolve_dns | default([]) }}"
+

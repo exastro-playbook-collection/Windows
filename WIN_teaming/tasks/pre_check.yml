@@ -1,0 +1,39 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#
+# Check teaming
+#
+# check parameter
+  - name: check parameter 1
+    assert:
+      msg: "the name(parameter) is Invalid."
+      that: (item.name is defined) and (not not item.name)
+    with_items: "{{ VAR_WIN_teaming }}"
+
+  - name: check parameter 2
+    assert:
+      msg: "the members(parameter) is Invalid."
+      that: (item.members is defined) and (not not item.members)
+    with_items: "{{ VAR_WIN_teaming }}"
+
+# check team exists
+  - name: check team exists
+    win_shell: (Get-NetLbfoTeam).Name
+    register: ret_pre_teaming
+    changed_when: not ret_pre_teaming.stdout is search('(^|\r\n){{ item.name }}(\r\n|$)')
+    with_items: "{{ VAR_WIN_teaming }}"
+
+
+#  set command variable
+  - name: check TeamingMode
+    win_shell: (Get-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}').TeamingMode
+    register: ret_pre_mode
+    changed_when: not ret_pre_mode.stdout is search('(^|\r\n){{ ret_pre_teaming.results.0.item.mode }}(\r\n|$)')
+    when: ret_pre_teaming.results.0.changed == false
+
+  - name: check LoadBalancingAlgorithm
+    win_shell: (Get-NetLbfoTeam -Name '{{ ret_pre_teaming.results.0.item.name }}').LoadBalancingAlgorithm
+    register: ret_pre_lb_argorithm
+    changed_when: not ret_pre_lb_argorithm.stdout is search('(^|\r\n){{ ret_pre_teaming.results.0.item.lb_argorithm }}(\r\n|$)')
+    when: ret_pre_teaming.results.0.changed == false

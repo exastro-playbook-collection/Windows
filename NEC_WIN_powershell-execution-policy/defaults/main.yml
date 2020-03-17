@@ -1,4 +1,0 @@
----
-VAR_NEC_WIN_executionPolicy:
-  - psexecpolicy: Undefined
-    psscope: LocalMachine

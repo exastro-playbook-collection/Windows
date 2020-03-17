@@ -1,0 +1,20 @@
+---
+#Windows Static Routing
+
+  - include_tasks: pre_check.yml
+    when:
+      - VAR_WIN_static_route is defined
+      - VAR_WIN_static_route is not none
+      - VAR_WIN_static_route != ""
+
+  - include_tasks: modify.yml
+    when:
+      - VAR_WIN_static_route is defined
+      - VAR_WIN_static_route is not none
+      - VAR_WIN_static_route != ""
+
+  - include_tasks: post_check.yml
+    when:
+      - VAR_WIN_static_route is defined
+      - VAR_WIN_static_route is not none
+      - VAR_WIN_static_route != ""

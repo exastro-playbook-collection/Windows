@@ -1,0 +1,47 @@
+---
+# not check `COMPLIANCE030206` by ansible-lint
+# Post Check hostname
+#
+  - name: wait for connection 1
+    wait_for_connection:
+      delay: 60
+      sleep: 10
+      timeout: 300
+    when: VAR_WIN_hostname_reboot
+
+  - debug:
+      msg: "WIN_reboot_required: {{ WIN_reboot_required }}"
+    tags:
+      - skip_ansible_lint
+
+  - name: post check hostname
+    win_shell: Write-Host -NoNewline (hostname)
+    register: ret_post_name
+    failed_when: ret_post_name.stdout != VAR_WIN_hostname
+    when:
+      - ret_pre_name is changed
+      - ret_name_change_1 is changed or ret_name_change_2 is changed or ret_name_change_3 is changed
+      - VAR_WIN_hostname_reboot
+    check_mode: no
+
+  - name: post check type when new type is "domain"
+    win_shell: (Get-WmiObject -Class Win32_ComputerSystem).Domain
+    register: ret_post_type_value
+    failed_when: ret_post_type_value.stdout_lines.0.lower() != VAR_WIN_hostname_domain.name.lower()
+    when:
+      - ret_type_change_3 is changed or ret_type_change_4 is changed
+      - ret_pre_type_value is changed
+      - VAR_WIN_hostname_reboot
+      - VAR_WIN_hostname_type.lower() == "domain"
+    check_mode: no
+
+  - name: post check type when new type is "workgroup"
+    win_shell: (Get-WmiObject -Class Win32_ComputerSystem).Domain
+    register: ret_post_type_value
+    failed_when: ret_post_type_value.stdout_lines.0.lower() != VAR_WIN_hostname_workgroup.lower()
+    when:
+      - ret_type_change_1 is changed or ret_type_change_2 is changed
+      - ret_pre_type_value is changed
+      - VAR_WIN_hostname_reboot
+      - VAR_WIN_hostname_type.lower() == "workgroup"
+    check_mode: no

@@ -1,3 +1,0 @@
----
-#default vars
-VAR_NEC_WIN_file_state: 'present'

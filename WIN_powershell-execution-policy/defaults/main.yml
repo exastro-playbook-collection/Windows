@@ -1,0 +1,4 @@
+---
+VAR_WIN_executionPolicy:
+  - psexecpolicy: Undefined
+    psscope: LocalMachine

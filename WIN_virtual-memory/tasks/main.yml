@@ -1,0 +1,18 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+# not check `COMPLIANCE030206` by ansible-lint
+#windows memory
+  - name: set WIN_reboot_required
+    set_fact:
+      WIN_reboot_required: "{{ WIN_reboot_required | d(false) }}"
+
+  - debug:
+      msg: "reboot_required: {{ WIN_reboot_required }}"
+    tags:
+        - skip_ansible_lint
+  - import_tasks: pre_check.yml
+
+  - import_tasks: modify.yml
+
+  - import_tasks: post_check.yml
+    when: VAR_WIN_virtual_memory_reboot == true

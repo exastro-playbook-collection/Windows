@@ -1,4 +1,0 @@
----
-#windows reboot tasks/main
-  - import_tasks: ../handlers/main.yml
-    when: not (NEC_WIN_reboot_nop |d(false))

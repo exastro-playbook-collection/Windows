@@ -1,0 +1,36 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+# not check `COMPLIANCE030206` by ansible-lint
+#modify
+
+  - name: modify pagefile registry value
+    raw: Set-ItemProperty '{{ location }}' 'PagingFiles' -Value '{{ data }}' -Type 'MultiString'
+    when: pre_reg_val is changed
+
+  - name: notify handlers
+    set_fact:
+    changed_when: true
+    notify:
+      - Run reboot command
+      - Wait for connection down
+      - Wait for connection up
+    when:
+      - pre_reg_val is changed
+      - VAR_WIN_virtual_memory_reboot == true
+
+  - meta: flush_handlers
+
+  - debug:
+      msg: "required: {{ WIN_reboot_required }}"
+    tags:
+      - skip_ansible_lint
+
+  - name: changed required value
+    set_fact:
+      WIN_reboot_required: "{{ not VAR_WIN_virtual_memory_reboot }}"
+    when: pre_reg_val is changed
+
+  - debug:
+      msg: "required: {{ WIN_reboot_required }}"
+    tags:
+        - skip_ansible_lint

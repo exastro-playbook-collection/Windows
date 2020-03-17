@@ -1,0 +1,48 @@
+---
+    # not check `COMPLIANCE020201` by ansible-lint
+  - name: set update_targetGroup_default's default value
+    set_fact:
+        update_targetGroup_default:
+            status: notConfigured
+  - name: target key of register
+    set_fact:
+        location: 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\'
+    #before setting,old entry have to be delete
+  - name: old entry list of WU
+    set_fact:
+        OLD_WU_OPTION_LIST: ["TargetGroup","TargetGroupEnabled"]
+
+  - name: delete old entry of WU
+    win_regedit:
+        path: "{{location}}"
+        name: "{{item}}"
+        state: absent
+    with_items: "{{OLD_WU_OPTION_LIST}}"
+
+  - name: get status
+    set_fact:
+        TG_status: "{{VAR_WIN_update_targetGroup.status | default(update_targetGroup_default.status)}}"
+
+  - name: set WUserver when status is ENABLED
+    block:
+      - name: set WUsever's name
+        win_regedit:
+            path: "{{location}}"
+            name: targetGroup
+            data: "{{VAR_WIN_update_targetGroup.targetGroup}}"
+            type: string
+      - name: set WUserver ENABLED
+        win_regedit:
+            path: "{{location}}"
+            name: TargetGroupEnabled
+            data: 1
+            type: dword
+    when: TG_status.strip().upper() == "ENABLED"
+
+  - name: does not use WUServer
+    win_regedit:
+        path: "{{location}}"
+        name: TargetGroupEnabled
+        data: 0
+        type: dword
+    when: TG_status.strip().upper() == "DISABLED"

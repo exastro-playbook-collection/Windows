@@ -1,0 +1,31 @@
+---
+  - name: check VAR_WIN_organization's length
+    fail:
+        msg: "VAR_WIN_organization's length is over 256."
+    when:
+      - VAR_WIN_organization is defined
+      - VAR_WIN_organization != ""
+      - VAR_WIN_organization is not none
+      - ( VAR_WIN_organization | length ) > 256
+
+  - name: check VAR_WIN_owner's length
+    fail:
+        msg: "VAR_WIN_owner's length is over 256."
+    when:
+      - VAR_WIN_owner is defined
+      - VAR_WIN_owner != ""
+      - VAR_WIN_owner is not none
+      - ( VAR_WIN_owner | length ) > 256
+
+  - name: set tmp variable for organization and owner settings
+    set_fact:
+        location1: 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+        location2: 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion'
+
+  - name: task for organization setting
+    import_tasks: modify_organization.yml
+    when: VAR_WIN_organization is defined
+
+  - name: task for owner setting
+    import_tasks: modify_owner.yml
+    when: VAR_WIN_owner is defined

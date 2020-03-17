@@ -1,0 +1,5 @@
+---
+  - name: set powershell's execution policy when VAR_WIN_executionPolicy is defined
+    include_tasks: modify.yml
+    with_items: "{{ VAR_WIN_executionPolicy }}"
+    when: VAR_WIN_executionPolicy is defined

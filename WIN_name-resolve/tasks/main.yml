@@ -1,0 +1,16 @@
+---
+#Windows NameResolve
+  - name: set hosts file when VAR_WIN_name_resolve_hosts is defined
+    include_tasks: modify.yml
+    with_items: "{{ VAR_WIN_name_resolve_hosts }}"
+    loop_control:
+      loop_var: outer_item_hosts
+    when: VAR_WIN_name_resolve_hosts is defined
+
+  - name: set NIC DNS when VAR_WIN_name_resolve_dns is defined
+    include_tasks: modify.yml
+    with_items: "{{ VAR_WIN_name_resolve_dns }}"
+    loop_control:
+      loop_var: outer_item_dns
+    when: VAR_WIN_name_resolve_dns is defined
+

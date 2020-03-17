@@ -1,0 +1,13 @@
+---
+# VAR_WIN_recoveros_defaultOS_displayname: Windows Server 2016
+# VAR_WIN_recoveros_timeOut: 30
+# VAR_WIN_recoveros_recoverTime:
+  # enabled: no
+  # timeout: 25
+# VAR_WIN_recoveros_autoReboot: yes
+# VAR_WIN_recoveros_DebugInfo:
+  # crashDumpEnabled: active
+  # dump: '%SystemRoot%\MEMORY.DMP'
+  # overWrite: no
+  # alwaysKeepMemoryDump: no
+

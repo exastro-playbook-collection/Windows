@@ -1,6 +1,0 @@
----
-VAR_NEC_WIN_dotNET35_reboot: false
-VAR_dotNET35_Feature_Name: NET-Framework-Core,NET-HTTP-Activation,NET-Non-HTTP-Activ
-VAR_dotNET35_Installer_Name: microsoft-windows-netfx3-ondemand-package.cab
-VAR_dotNET35_Installer_URL:
-VAR_dotNET35_Installer_PATH:

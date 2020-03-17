@@ -1,0 +1,13 @@
+---
+#
+# Check interface
+#
+# check parameter ipaddresses
+
+  - name: check parameter 3-2
+    assert:
+      msg: "One of the them(ip,prefix,gateway) is invalid when set static ip."
+      that: ((VAR_interface.ipaddresses.0.ip is defined) and (not not VAR_interface.ipaddresses.0.ip)) or ((VAR_interface.ipaddresses.0.prefix is defined) and (not not VAR_interface.ipaddresses.0.prefix)) or ((VAR_interface.ipaddresses.0.gateway is defined) and (not not VAR_interface.ipaddresses.0.gateway))
+    when:
+      - VAR_interface.state.lower() == "up"
+      - VAR_interface.dhcp == false

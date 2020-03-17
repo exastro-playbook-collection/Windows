@@ -1,0 +1,23 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+  - name: check whether VAR_WIN_errorreport is defined
+    fail:
+        msg: VAR_WIN_errorreport is not defined or empty
+    when: VAR_WIN_errorreport is not defined or VAR_WIN_errorreport is none or VAR_WIN_errorreport == ""
+
+  - name: set variable that contains available error reporting Options
+    set_fact:
+        AVAILABLE_OPTION_LIST: ["ENABLED","DISABLED"]
+
+  - name: check whether VAR_WIN_errorreport is legal or not
+    fail:
+        msg: VAR_WIN_errorreport is unavailable
+    when: not VAR_WIN_errorreport.strip().upper() in AVAILABLE_OPTION_LIST
+
+  - name: enable error reporting
+    win_shell: Enable-WindowsErrorReporting
+    when: VAR_WIN_errorreport.strip().upper() == "ENABLED"
+
+  - name: disable error reporting
+    win_shell: Disable-WindowsErrorReporting
+    when: VAR_WIN_errorreport.strip().upper() == "DISABLED"

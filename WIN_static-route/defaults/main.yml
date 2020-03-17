@@ -1,0 +1,3 @@
+---
+#default vars
+# VAR_WIN_static_route: "{{VAR_static_route | default([]) }}"

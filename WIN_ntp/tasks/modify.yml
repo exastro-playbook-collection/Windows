@@ -1,0 +1,62 @@
+---
+#
+# change ntp
+#
+
+# start services
+  - name: start services 1
+    win_shell: Set-Service -Name "w32time" -StartupType "Manual"
+    when: ret_pre_0.stdout_lines.0 == "Stopped"
+
+  - name: start services 2
+    win_shell: net start w32time
+    when: ret_pre_0.stdout_lines.0 == "Stopped"
+
+  - name: stop services before setting
+    win_shell: net stop w32time
+
+# DateTime
+  - name: VAR_WIN_ntp_DataTime defined
+    block:
+      - name: delete DateTime Servers
+        win_shell: Remove-Item -Path "HKLM:HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/DateTime/Servers/"
+      - name: new DateTime Servers
+        win_shell: New-Item -Path "HKLM:HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/DateTime/Servers/" -Value "{{ DataTimedefault }}"
+      - name: set DateTime Servers
+        win_shell: New-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/DateTime/Servers/" -Name "{{item.0 + 1}}" -Value "{{item.1}}"
+        with_indexed_items: "{{ ServersIP }}"
+    when: VAR_WIN_ntp_DataTime is defined
+
+# ntp
+  - name: set Parameters W32Time
+    block:
+# Parameters
+      - name: set Parameters NtpServer
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters/" -Name "NtpServer" -Value "{{NtpServer}}"
+      - name: set Parameters Type
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters/" -Name "Type" -Value "{{Type}}"
+# NtpClient
+      - name: set Parameters NtpClient
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "Enabled" -Value "1"
+      - name: set Parameters NtpClient CrossSiteSyncFlags
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "CrossSiteSyncFlags" -Value "{{CrossSiteSyncFlags}}"
+      - name: set Parameters NtpClient ResolvePeerBackoffMaxTimes
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "ResolvePeerBackoffMaxTimes" -Value "{{ResolvePeerBackoffMaxTimes}}"
+      - name: set Parameters NtpClient ResolvePeerBackoffMinutes
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "ResolvePeerBackoffMinutes" -Value "{{ResolvePeerBackoffMinutes}}"
+      - name: set Parameters NtpClient SpecialPollInterval
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "SpecialPollInterval" -Value "{{SpecialPollInterval}}"
+      - name: set Parameters NtpClient EventLogFlags
+        win_shell: Set-ItemProperty "HKLM:HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/TimeProviders/NtpClient/" -Name "EventLogFlags" -Value "{{EventLogFlags}}"
+  # when: VAR_WIN_ntp is defined
+
+# start w32time services
+  - name: start services
+    win_shell: net start w32time
+
+# Client InternetTime
+  # - name: set NtpClient InternetTime
+    # win_shell: w32tm /config /update /manualpeerlist:"{{NtpServer}}" /syncfromflags:manual /reliable:yes
+
+  - name: start services
+    win_shell: w32tm /resync

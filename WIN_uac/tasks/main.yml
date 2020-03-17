@@ -1,0 +1,113 @@
+---
+  - name: set WIN_reboot_required
+    set_fact:
+      WIN_reboot_required: "{{ WIN_reboot_required | d(false) }}"
+
+  - name: define UAC vars
+    set_fact:
+      location: 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+      UAC_list: ['high1','high2','high3','high4','middle','low','disabled']
+
+  - name: check VAR_WIN_uac
+    fail:
+      msg: "VAR_WIN_uac's vaule should be 'high1' or 'high2' or 'high3' or 'high4' or 'middle' or 'low' or 'disabled'"
+    when: VAR_WIN_uac is none or VAR_WIN_uac == '' or VAR_WIN_uac.strip().lower() not in UAC_list
+
+  - name: define UAC high1
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 1
+        - PromptOnSecureDesktop: 1
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'high1'
+
+  - name: define UAC high2
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 2
+        - PromptOnSecureDesktop: 1
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'high2'
+
+  - name: define UAC high3
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 3
+        - PromptOnSecureDesktop: 0
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'high3'
+
+  - name: define UAC high4
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 4
+        - PromptOnSecureDesktop: 0
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'high4'
+
+  - name: define UAC middle
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 5
+        - PromptOnSecureDesktop: 1
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'middle'
+
+  - name: define UAC low
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 5
+        - PromptOnSecureDesktop: 0
+        - EnableLUA: 1
+    when: VAR_WIN_uac.strip().lower() == 'low'
+
+  - name: define UAC disabled
+    set_fact:
+      UAC:
+        - ConsentPromptBehaviorAdmin: 0
+        - PromptOnSecureDesktop: 0
+        - EnableLUA: 0
+    when: VAR_WIN_uac.strip().lower() == 'disabled'
+
+  - name: set UAC
+    block:
+      - name: set UAC level
+        win_regedit:
+          path: "{{location}}"
+          name: "{{item.key}}"
+          data: "{{item.value}}"
+          type: dword
+        with_dict: "{{UAC}}"
+        register: ret_reg
+
+      - name: notify handlers
+        set_fact:
+        changed_when: true
+        notify:
+          - Run reboot command
+          - Wait for connection down
+          - Wait for connection up
+        when:
+          - item.item.key == 'EnableLUA'
+          - item.changed == true
+          - VAR_WIN_uac_reboot == true
+        with_items: "{{ret_reg.results}}"
+
+      - name: fulsh handlers
+        meta: flush_handlers
+
+      - name: debug reboot message
+        debug:
+          msg: "Restart now: {{ VAR_WIN_uac_reboot }}"
+        tags:
+          - skip_ansible_lint
+
+      - name: changed required value
+        set_fact:
+          WIN_reboot_required: "{{ not VAR_WIN_uac_reboot }}"
+        when:
+          - item.item.key == 'EnableLUA'
+          - item.changed == true
+        with_items: "{{ret_reg.results}}"
+    when: UAC is defined
+

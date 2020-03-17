@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: WIN_virtual-memory
+  description: Configure OS.
+  author: NEC Corporation
+  company: NEC Corporation
+  license: Apache License 2.0
+  min_ansible_version: 2.4
+  platforms:
+    - name: Windows
+      versions:
+        - 2016
+  galaxy_tags: []
+  categories: []
+
+dependencies:
+  - {role: WIN_reboot, WIN_reboot_nop: yes }

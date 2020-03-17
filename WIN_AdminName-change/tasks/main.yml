@@ -1,0 +1,13 @@
+---
+- name: Check the parameters
+  fail:
+    msg: "Parameter VAR_WIN_AdminName is error."
+  when:
+    - VAR_WIN_AdminName is defined
+    - ( VAR_WIN_AdminName == "" ) or ( VAR_WIN_AdminName == none )
+
+- name: change the administrator name
+  win_security_policy:
+    section: System Access
+    key: NewAdministratorName
+    value: "{{ VAR_WIN_AdminName }}"

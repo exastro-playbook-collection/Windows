@@ -1,0 +1,14 @@
+---
+  - name: set owner registry value
+    win_regedit:
+        path: "{{ item.location }}"
+        name: "{{ item.property }}"
+        data: "{{ item.data }}"
+        type: "string"
+    with_items:
+      - location: "{{ location1 }}"
+        property: "RegisteredOwner"
+        data: "{{ VAR_WIN_owner }}"
+      - location: "{{ location2 }}"
+        property: "RegisteredOwner"
+        data: "{{ VAR_WIN_owner }}"

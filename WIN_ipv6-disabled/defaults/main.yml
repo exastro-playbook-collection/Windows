@@ -1,0 +1,16 @@
+---
+# VAR_WIN_ipv6Disabled_tunnel:
+  # tunnel: yes
+  # tunnel6to4: yes
+  # tunnelIsatap: yes
+  # tunnelTeredo: yes
+  # native: yes
+  # preferIpv4: yes
+  # tunnelCp: yes
+  # tunnelIpTls: yes
+# VAR_WIN_ipv6Disabled_NICs:
+  # - nicName: Ethernet0
+    # state: enabled
+  # - nicName: Ethernet1 Intel
+    # state: disabled
+VAR_WIN_ipv6Disabled_reboot: false

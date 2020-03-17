@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: WIN_user-rights-assign
+  description: Configure OS.
+  author: NEC Corporation
+  company: NEC Corporation
+  license: Apache License 2.0
+  min_ansible_version: 2.7
+  platforms:
+    - name: Windows
+      versions:
+        - 2016
+  galaxy_tags: []
+  categories: []
+
+dependencies: []

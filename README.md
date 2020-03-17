@@ -90,22 +90,22 @@ The key fingerprint is:
 -----------
 以下のシステム設定用ロールを提供しています。
 
-* rsyslog設定  (NEC_RH_rsyslog)
-* sshd設定     (NEC_RH_sshd)
-* snmpd設定    (NEC_RH_snmpd)
-* grub2設定    (NEC_RH_grub2) GRUB2: GRand Unified Bootloader version 2
-* kdump設定    (NEC_RH_kdump) KDUMP: Kernel Crash Dumps
-* ntp設定      (NEC_RH_ntp) NTP: Network Time Protocol
-* OS再起動     (NEC_RH_reboot)
-* パスワードポリシー設定 (NEC_RH_password-rules)
-* 言語設定     (NEC_RH_lang)
-* キーボード設定  (NEC_RH_keyboard)
-* ランレベル設定  (NEC_RH_runlevel)
+* rsyslog設定  (RH_rsyslog)
+* sshd設定     (RH_sshd)
+* snmpd設定    (RH_snmpd)
+* grub2設定    (RH_grub2) GRUB2: GRand Unified Bootloader version 2
+* kdump設定    (RH_kdump) KDUMP: Kernel Crash Dumps
+* ntp設定      (RH_ntp) NTP: Network Time Protocol
+* OS再起動     (RH_reboot)
+* パスワードポリシー設定 (RH_password-rules)
+* 言語設定     (RH_lang)
+* キーボード設定  (RH_keyboard)
+* ランレベル設定  (RH_runlevel)
 
 ## ファイルの操作
 -----------
-* ファイルの作成／削除  (NEC_RH_file)
-* ログローテートの設定  (NEC_RH_logrotate)
+* ファイルの作成／削除  (RH_file)
+* ログローテートの設定  (RH_logrotate)
 
 ## ネットワーク関連の設定
 -----------
@@ -114,10 +114,10 @@ RHEL のネットワーク設定は、NetworkManagerの起動有無で実現方�
 
 | ロール名 | 機能概要 | NM(*)の起動 | 補足 |
 |---------|---------|-------|------|
-|NEC_RH_hostname|システムホスト名の変更|不要|　　|
-|NEC_RH_name_resolve|DNS設定|不要|　　|
-|NEC_RH_interface|ネットワークインタフェースの設定|不要|　　|
-|NEC_RH_static-routing|静的ルーティングの設定|不要|　　|
+|RH_hostname|システムホスト名の変更|不要|　　|
+|RH_name_resolve|DNS設定|不要|　　|
+|RH_interface|ネットワークインタフェースの設定|不要|　　|
+|RH_static-routing|静的ルーティングの設定|不要|　　|
 
 (*)NM: NetworkManager
 
@@ -126,41 +126,41 @@ RHEL のネットワーク設定は、NetworkManagerの起動有無で実現方�
 -----------
 以下のシステム設定用ロールを提供しています。
 
-* リモートデスクトップ接続設定(NEC_WIN_remote-desktop)
-* 仮想メモリ(NEC_WIN_virtual-memory)
-* ntp設定(NEC_WIN_ntp)
-* OS再起動(NEC_WIN_reboot)
-* UAC設定(NEC_WIN_uac)
-* 起動と回復設定(NEC_WIN_recover-os)
-* Windowsエラー報告設定(NEC_WIN_error-report)
-* WindowsUpdate設定(NEC_WIN_windows-update)
-* Powershellスクリプト実行許可設定(NEC_WIN_powershell-execution-policy)
-* 組織と使用者設定(NEC_WIN_owner-organization)
-* .NET Framework 3.5のインストール(NEC_WIN_dotNET35-Install)
-* Administrator アカウント名変更(NEC_WIN_AdminName-change)
-* ドライブレター設定(NEC_WIN_drive-letter)
-* ユーザー権利割当(NEC_WIN_user-rights-assign)
-* 管理者承認モードですべての管理者を実行する設定(NEC_WIN_AdminApprovalMode)
+* リモートデスクトップ接続設定(WIN_remote-desktop)
+* 仮想メモリ(WIN_virtual-memory)
+* ntp設定(WIN_ntp)
+* OS再起動(WIN_reboot)
+* UAC設定(WIN_uac)
+* 起動と回復設定(WIN_recover-os)
+* Windowsエラー報告設定(WIN_error-report)
+* WindowsUpdate設定(WIN_windows-update)
+* Powershellスクリプト実行許可設定(WIN_powershell-execution-policy)
+* 組織と使用者設定(WIN_owner-organization)
+* .NET Framework 3.5のインストール(WIN_dotNET35-Install)
+* Administrator アカウント名変更(WIN_AdminName-change)
+* ドライブレター設定(WIN_drive-letter)
+* ユーザー権利割当(WIN_user-rights-assign)
+* 管理者承認モードですべての管理者を実行する設定(WIN_AdminApprovalMode)
 
 ## ファイルの操作
 -----------
 
-* ファイルの作成／削除(NEC_WIN_file)
-* ディレクトリ作成(NEC_WIN_directory)
+* ファイルの作成／削除(WIN_file)
+* ディレクトリ作成(WIN_directory)
 
 ## ネットワーク関連の設定
 -----------
 
 | ロール名 | 機能概要 | 補足 |
 |---------|---------|------|
-|NEC_WIN_hostname|システムホスト名の変更|　　|
-|NEC_WIN_name_resolve|DNS設定|　　|
-|NEC_WIN_network-interface|ネットワークインタフェースの設定|　　|
-|NEC_WIN_static-route|静定ルーティングの設定|　　|
-|NEC_WIN_network| `C:\WINDOWS\system32\drivers\etc\networks` の設定|　　|
-|NEC_WIN_teaming|teamingの設定|複数のNICを束ねるチーミング機能の設定 |
-|NEC_WIN_ipv6-disabled|IPv6無効化設定|　　|
-|NEC_WIN_dns-suffix|DNSサフィックス設定|　　|
+|WIN_hostname|システムホスト名の変更|　　|
+|WIN_name_resolve|DNS設定|　　|
+|WIN_network-interface|ネットワークインタフェースの設定|　　|
+|WIN_static-route|静定ルーティングの設定|　　|
+|WIN_network| `C:\WINDOWS\system32\drivers\etc\networks` の設定|　　|
+|WIN_teaming|teamingの設定|複数のNICを束ねるチーミング機能の設定 |
+|WIN_ipv6-disabled|IPv6無効化設定|　　|
+|WIN_dns-suffix|DNSサフィックス設定|　　|
 
 # Remarks
 -------

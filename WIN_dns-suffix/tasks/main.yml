@@ -1,0 +1,160 @@
+---
+# not check `COMPLIANCE020201` by ansible-lint
+# not check `COMPLIANCE030206` by ansible-lint
+  - name: set WIN_reboot_required
+    set_fact:
+      WIN_reboot_required: "{{ WIN_reboot_required | d(false) }}"
+
+  - name: check param VAR_WIN_dnsSuffix_primary
+    block:
+      - name: check param NVDomain
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_primary.NVDomain' should be defined."
+        when: VAR_WIN_dnsSuffix_primary.NVDomain is undefined
+
+      - name: check param syncDomainWithMembership
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_primary.syncDomainWithMembership' should be defined and must be bool type."
+        when: "(VAR_WIN_dnsSuffix_primary.syncDomainWithMembership is undefined) or (VAR_WIN_dnsSuffix_primary.syncDomainWithMembership is none) or ((VAR_WIN_dnsSuffix_primary.syncDomainWithMembership != False) and (VAR_WIN_dnsSuffix_primary.syncDomainWithMembership != True))"
+    when: VAR_WIN_dnsSuffix_primary is defined
+
+  - name: check param VAR_WIN_dnsSuffix_specific
+    block:
+      - name: check param useDomainNameDevolution
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_specific.useDomainNameDevolution' should be defined and must be bool type."
+        when: "(VAR_WIN_dnsSuffix_specific.useDomainNameDevolution is undefined) or (VAR_WIN_dnsSuffix_specific.useDomainNameDevolution is none) or ((VAR_WIN_dnsSuffix_specific.useDomainNameDevolution != False) and (VAR_WIN_dnsSuffix_specific.useDomainNameDevolution != True))"
+
+      - name: check param searchList
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_specific.searchList' cannot be NULL."
+        when:
+          - VAR_WIN_dnsSuffix_specific.searchList is defined
+          - VAR_WIN_dnsSuffix_specific.searchList is none
+    when: VAR_WIN_dnsSuffix_specific is defined
+
+  - name: check param VAR_WIN_dnsSuffix_nic
+    block:
+      - name: check param nicName
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_nic.nicName' should be defined and cannot be NULL."
+        with_items: "{{ VAR_WIN_dnsSuffix_nic }}"
+        when: "(item.nicName is undefined) or (item.nicName is none) or (item.nicName == '')"
+
+      - name: check param suffixName
+        fail:
+          msg: "Parameter 'VAR_WIN_dnsSuffix_nic.suffixName' should be defined and cannot be NULL."
+        with_items: "{{ VAR_WIN_dnsSuffix_nic }}"
+        when: "(item.suffixName is undefined) or (item.suffixName is none) or (item.suffixName == '')"
+
+      - name: get all nic
+        win_shell: "Get-NetAdapter | Format-List -Property Name"
+        register: getNic
+
+      - name: init nicList
+        set_fact:
+          nicList: ''
+
+      - name: set list to nicList
+        set_fact:
+          nicList: "{{ [nicList,(item | lower)] | join('?') }}"
+        with_items: "{{ getNic.stdout_lines }}"
+        when: "item != ''"
+
+      - name: fail if nic not existed
+        fail:
+          msg: "NIC {{ item.nicName }} does not exist."
+        with_items: "{{ VAR_WIN_dnsSuffix_nic }}"
+        when: "('name : ' + item.nicName.lower()) not in nicList.split('?')"
+    when: VAR_WIN_dnsSuffix_nic is defined
+
+  - name: set primary dns suffix
+    block:
+      - name: set NVDomain
+        win_regedit:
+          path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+          name: NV Domain
+          data: "{{ VAR_WIN_dnsSuffix_primary.NVDomain }}"
+          type: string
+        register: nvDomain_reg
+
+      - name: set SyncDomainWithMembership
+        win_regedit:
+          path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+          name: SyncDomainWithMembership
+          data: "{{ (VAR_WIN_dnsSuffix_primary.syncDomainWithMembership == True) | ternary('1','0') }}"
+          type: dword
+        register: syncDomain_reg
+
+      - name: notify handlers
+        set_fact:
+        changed_when: true
+        notify:
+          - Run reboot command
+          - Wait for connection down
+          - Wait for connection up
+        when:
+          - (nvDomain_reg is changed) or (syncDomain_reg is changed)
+          - VAR_WIN_dnsSuffix_reboot == true
+
+      - name: fulsh handlers
+        meta: flush_handlers
+
+      - name: debug reboot message
+        debug:
+          msg: "Restart now: {{ VAR_WIN_dnsSuffix_reboot }}"
+        tags:
+          - skip_ansible_lint
+
+      - name: changed required value
+        set_fact:
+          WIN_reboot_required: "{{ not VAR_WIN_dnsSuffix_reboot }}"
+        when: (nvDomain_reg is changed) or (syncDomain_reg is changed)
+    when: VAR_WIN_dnsSuffix_primary is defined
+
+  - name: set specific nds suffix
+    block:
+      - name: delete searchList
+        win_regedit:
+          path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+          name: SearchList
+          data:
+          type: string
+
+      - name: set UseDomainNameDevolution
+        win_regedit:
+          path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+          name: UseDomainNameDevolution
+          data: "{{ VAR_WIN_dnsSuffix_specific.useDomainNameDevolution | ternary('1','0') }}"
+          type: dword
+
+      - name: init param listTemp
+        set_fact:
+          listTemp: ''
+
+      - name: set searchList
+        block:
+          - name: set searchList to listTemp
+            set_fact:
+              listTemp: "{{ [listTemp,item] | join(' ') }}"
+            with_items: "{{ VAR_WIN_dnsSuffix_specific.searchList }}"
+
+          - name: set reg SearchList
+            win_regedit:
+              path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+              name: SearchList
+              data: "{{ listTemp | trim |replace(' ',',') }}"
+              type: string
+        when:
+          - VAR_WIN_dnsSuffix_specific.searchList is defined
+          - VAR_WIN_dnsSuffix_specific.searchList is not none
+
+    when: VAR_WIN_dnsSuffix_specific is defined
+
+  - name: set nic dns suffix
+    win_shell: "Set-DnsClient -InterfaceAlias '{{ item.nicName }}'  -ConnectionSpecificSuffix '{{ item.suffixName }}'"
+    with_items: "{{ VAR_WIN_dnsSuffix_nic }}"
+    when: item is defined
+
+
+

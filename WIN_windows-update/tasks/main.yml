@@ -1,0 +1,14 @@
+---
+  - name: check parameter
+    import_tasks: pre_check.yml
+  - name: set windows update
+    import_tasks: modify_AU.yml
+    when: VAR_WIN_update_AU is defined
+  - name: set windows update server
+    import_tasks: modify_WU.yml
+    when: VAR_WIN_update_WU is defined
+  - name: set update group
+    import_tasks: modify_TG.yml
+    when: VAR_WIN_update_targetGroup is defined
+  - name: delete empty key
+    import_tasks: delete_empty_key.yml

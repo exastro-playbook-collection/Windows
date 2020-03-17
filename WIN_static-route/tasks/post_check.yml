@@ -1,0 +1,20 @@
+---
+#post_check
+
+  - name: post_check static route
+    raw: Get-NetRoute | ? DestinationPrefix -eq '{{item.dest}}' |? NextHop -eq '{{item.gateway}}'
+    with_items: "{{ VAR_WIN_static_route }}"
+    register: ret_static_route
+    changed_when: false
+    failed_when: not ret_static_route.stdout
+    when:
+      - item.dest is defined
+      - item.dest.split('/').0 != '0.0.0.0'
+
+  - name: post_check static route
+    raw: Get-NetRoute | ? DestinationPrefix -eq '0.0.0.0/0' |? NextHop -eq '{{item.gateway}}'
+    with_items: "{{ VAR_WIN_static_route }}"
+    register: ret_static_route
+    changed_when: false
+    failed_when: not ret_static_route.stdout
+    when: item.dest is undefined or item.dest.split('/').0 == '0.0.0.0'

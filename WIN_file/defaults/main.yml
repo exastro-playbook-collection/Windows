@@ -1,0 +1,3 @@
+---
+#default vars
+VAR_WIN_file_state: 'present'

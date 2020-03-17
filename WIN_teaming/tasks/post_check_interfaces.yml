@@ -1,0 +1,28 @@
+---
+#
+# post check interfaces
+#
+# post check interfaces exists
+  - name: post check team interfaces exists
+    win_shell: (Get-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}').Name
+    register: ret_post_logical
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+    failed_when: not ret_post_logical.stdout is search('(^|\r\n)'+item.name+'(\r\n|$)')
+
+# post check interfaces vlanid
+  - name: post check team interfaces vlanid
+    win_shell: (Get-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}').VlanID
+    register: ret_post_logical
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+    when:
+      - item.vlan_id is defined
+      - (item.vlan_id == 0) or (not not item.vlan_id)
+    failed_when: not ret_post_logical.stdout is search('(^|\r\n)'+item.vlan_id|string + '(\r\n|$)')
+
+# post check interfaces vlanid
+  - name: post check team interfaces vlanid
+    win_shell: (Get-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}').VlanID
+    register: ret_post_logical
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+    when: item.vlan_id is undefined
+    failed_when: not ret_post_logical.stdout is search('0')

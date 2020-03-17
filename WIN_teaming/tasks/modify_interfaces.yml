@@ -1,0 +1,58 @@
+---
+
+# not check `ANSIBLE0016` by ansible-lint
+#
+# tasks file for team interfaces
+#
+  - name: check team interfaces exists
+    win_shell: (Get-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}').Name
+    register: ret_pre_logical
+    changed_when: not ret_pre_logical.stdout is search('(^|\r\n)'+ item.name +'(\r\n|$)')
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+
+  - name: check parameter vlan_id
+    fail:
+      msg: "vlan_id is null!"
+    when:
+      - item.vlan_id is defined
+      - item.vlan_id == "" or item.vlan_id == none
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+
+  - name: add team interfaces
+    win_shell: Add-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}' -VlanID '{{ item.item.vlan_id }}' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_logical.results }}"
+    when:
+      - item.changed == true
+      - item.item.vlan_id is defined
+      - (item.item.vlan_id == 0) or (not not item.item.vlan_id)
+
+  - name: add team interfaces
+    win_shell: Add-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}' -VlanID '0' -Name '{{ item.item.name }}' -Confirm:$False
+    with_items: "{{ ret_pre_logical.results }}"
+    when:
+      - item.changed == true
+      - item.item.vlan_id is undefined
+
+  - name: check team interfaces vlan_id
+    win_shell: (Get-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}' -Name '{{ item.name }}').VlanID
+    register: ret_pre_logical_vlan_id
+    with_items: "{{ VAR_WIN_teaming.0.interfaces }}"
+    when:
+      - item.vlan_id is defined
+      - (item.vlan_id == 0) or (not not item.vlan_id)
+    changed_when: not ret_pre_logical_vlan_id.stdout is search('(^|\r\n)'+ item.vlan_id|string +'(\r\n|$)')
+
+  - name: set team interfaces
+    win_shell: Set-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}' -VlanID '{{ item.item.vlan_id }}' -Name '{{ item.item.name }}'
+    with_items: "{{ ret_pre_logical_vlan_id.results }}"
+    when:
+      - item.changed == true
+      - item.item.vlan_id is defined
+      - (item.item.vlan_id == 0) or (not not item.item.vlan_id)
+
+  - name: set team interfaces
+    win_shell: Set-NetLbfoTeamNic -Team '{{ VAR_WIN_teaming.0.name }}' -Name '{{ item.item.name }}' -VlanID 0
+    with_items: "{{ ret_pre_logical_vlan_id.results }}"
+    when:
+      - item.changed == false
+      - item.item.vlan_id is undefined

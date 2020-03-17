@@ -1,5 +1,0 @@
----
-#default vars
-VAR_NEC_WIN_remote_desktop_state: "enabled"
-VAR_NEC_WIN_remote_desktop_modify_firewall_exception: yes
-VAR_NEC_WIN_remote_desktop_nla: "enabled"
