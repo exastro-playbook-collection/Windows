@@ -7,8 +7,8 @@
 ## Supports  
 - 管理マシン(Ansibleサーバ)  
  * Linux系OS（RHEL）  
- * Ansible バージョン 2.4 以上  
- * Python バージョン 2.7  
+ * Ansible バージョン 2.4 以上 (動作確認バージョン 2.4, 2.9)
+ * Python バージョン 2.x, 3.x  (動作確認バージョン 2.7, 3.6)
 - 管理対象マシン(構築対象マシン)
  * Windows Server 2016
 
